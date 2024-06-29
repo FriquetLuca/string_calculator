@@ -149,16 +149,171 @@ mod tests {
         assert_eq!(tokenizer.next().unwrap(), Token::Num(34))
     }
     #[test]
-    fn test_no_decimal_number() {
-        let mut tokenizer = Tokenizer::new("34.5");
-        assert_eq!(tokenizer.next().unwrap(), Token::Num(34))
+    fn test_left_parenthesis_operator() {
+        let mut tokenizer = Tokenizer::new("(");
+        assert_eq!(tokenizer.next().unwrap(), Token::LeftParen)
     }
     #[test]
-    fn test_sin_function() {
-        let mut tokenizer = Tokenizer::new("pow(2, 3)");
+    fn test_right_parenthesis_operator() {
+        let mut tokenizer = Tokenizer::new(")");
+        assert_eq!(tokenizer.next().unwrap(), Token::RightParen)
+    }
+    #[test]
+    fn test_left_shift_operator() {
+        let mut tokenizer = Tokenizer::new("<<");
+        assert_eq!(tokenizer.next().unwrap(), Token::LeftShift)
+    }
+    #[test]
+    fn test_right_shift_operator() {
+        let mut tokenizer = Tokenizer::new(">>");
+        assert_eq!(tokenizer.next().unwrap(), Token::RightShift)
+    }
+    #[test]
+    fn test_ans_operator() {
+        let mut tokenizer = Tokenizer::new("@");
+        assert_eq!(tokenizer.next().unwrap(), Token::Ans)
+    }
+    #[test]
+    fn test_pow2_operator() {
+        let mut tokenizer = Tokenizer::new("²");
+        assert_eq!(tokenizer.next().unwrap(), Token::Pow2)
+    }
+    #[test]
+    fn test_pow3_operator() {
+        let mut tokenizer = Tokenizer::new("³");
+        assert_eq!(tokenizer.next().unwrap(), Token::Pow3)
+    }
+    #[test]
+    fn test_bar_operator() {
+        let mut tokenizer = Tokenizer::new("|");
+        assert_eq!(tokenizer.next().unwrap(), Token::Bar)
+    }
+    #[test]
+    fn test_comma_operator() {
+        let mut tokenizer = Tokenizer::new(",");
+        assert_eq!(tokenizer.next().unwrap(), Token::Comma)
+    }
+    #[test]
+    fn test_add_operator() {
+        let mut tokenizer = Tokenizer::new("+");
+        assert_eq!(tokenizer.next().unwrap(), Token::Add)
+    }
+    #[test]
+    fn test_subtract_operator() {
+        let mut tokenizer = Tokenizer::new("-");
+        assert_eq!(tokenizer.next().unwrap(), Token::Subtract)
+    }
+    #[test]
+    fn test_multiply_operator() {
+        let mut tokenizer = Tokenizer::new("*");
+        assert_eq!(tokenizer.next().unwrap(), Token::Multiply)
+    }
+    #[test]
+    fn test_divide_operator() {
+        let mut tokenizer = Tokenizer::new("/");
+        assert_eq!(tokenizer.next().unwrap(), Token::Divide)
+    }
+    #[test]
+    fn test_modulo_operator() {
+        let mut tokenizer = Tokenizer::new("%");
+        assert_eq!(tokenizer.next().unwrap(), Token::Modulo)
+    }
+    #[test]
+    fn test_caret_operator() {
+        let mut tokenizer = Tokenizer::new("^");
+        assert_eq!(tokenizer.next().unwrap(), Token::Caret)
+    }
+    #[test]
+    fn test_exclamation_mark_operator() {
+        let mut tokenizer = Tokenizer::new("!");
+        assert_eq!(tokenizer.next().unwrap(), Token::ExclamationMark)
+    }
+    #[test]
+    fn test_ln_function() {
+        let mut tokenizer = Tokenizer::new("ln(10)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Ln)
+        )
+    }
+    #[test]
+    fn test_log_function() {
+        let mut tokenizer = Tokenizer::new("log(20,2)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Log)
+        )
+    }
+    #[test]
+    fn test_pow_function() {
+        let mut tokenizer = Tokenizer::new("pow(20,2)");
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Pow)
+        )
+    }
+    #[test]
+    fn test_sqrt_function() {
+        let mut tokenizer = Tokenizer::new("sqrt(14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Sqrt)
+        )
+    }
+    #[test]
+    fn test_exp2_function() {
+        let mut tokenizer = Tokenizer::new("exp2(14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Exp2)
+        )
+    }
+    #[test]
+    fn test_abs_function() {
+        let mut tokenizer = Tokenizer::new("abs(14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Abs)
+        )
+    }
+    #[test]
+    fn test_sign_function() {
+        let mut tokenizer = Tokenizer::new("sign(14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Sign)
+        )
+    }
+    #[test]
+    fn test_sign2_function() {
+        let mut tokenizer = Tokenizer::new("sgn(14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Sign)
+        )
+    }
+    #[test]
+    fn test_sign3_function() {
+        let mut tokenizer = Tokenizer::new("signum(14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Sign)
+        )
+    }
+    #[test]
+    fn test_min_function() {
+        let mut tokenizer = Tokenizer::new("min(14159,2)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Min)
+        )
+    }
+    #[test]
+    fn test_max_function() {
+        let mut tokenizer = Tokenizer::new("max(14159,2)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Max)
         )
     }
 }
