@@ -1,6 +1,5 @@
-use crate::utils::superscript_digit_to_digit;
-
 use super::token::{NativeFunction, Token};
+use crate::utils::deserialize_superscript_number;
 use std::iter::Peekable;
 use std::str::Chars;
 
@@ -52,21 +51,11 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('⁰'..='⁹') => {
-                let current_char = current_char?;
-                let mut number = superscript_digit_to_digit(&current_char)
-                    .map(|c| c.to_string())
-                    .unwrap_or_default();
-                while let Some(next_char) = self.expr.peek() {
-                    if let Some(next_char) = superscript_digit_to_digit(next_char) {
-                        self.expr.next();
-                        number.push(next_char);
-                    } else {
-                        break;
-                    }
-                }
-                Some(Token::Superscript(number.parse::<i64>().unwrap()))
-            }
+            Some('⁰'..='⁹') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
             Some('0'..='9') => {
                 let mut number = current_char?.to_string();
                 while let Some(next_char) = self.expr.peek() {
