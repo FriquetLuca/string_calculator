@@ -10,6 +10,7 @@ authors = [ "Friquet Luca" ]
 
 [dependencies]
 statrs = "0.16"
+conv = "0.3"
 
 [lib]
 name = "string_calculator"

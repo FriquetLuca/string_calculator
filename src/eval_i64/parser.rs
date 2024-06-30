@@ -1,4 +1,5 @@
 use std::fmt;
+use std::sync::Arc;
 
 use super::ast::Node;
 use super::token::{NativeFunction, OperPrec, Token};
@@ -153,7 +154,7 @@ impl<'a> Parser<'a> {
                                 "There's no arguments in the min function".to_string(),
                             ));
                         }
-                        Node::Min(args)
+                        Node::Min(Arc::new(args))
                     }
                     NativeFunction::Max => {
                         let args = self.function_arguments()?;
@@ -162,7 +163,15 @@ impl<'a> Parser<'a> {
                                 "There's no arguments in the max function".to_string(),
                             ));
                         }
-                        Node::Max(args)
+                        Node::Max(Arc::new(args))
+                    }
+                    NativeFunction::Avg => {
+                        let args = self.function_arguments()?;
+                        if args.is_empty() {
+                            Node::Number(0)
+                        } else {
+                            Node::Avg(Arc::new(args))
+                        }
                     }
                 };
                 self.implicit_multiply(current_function)
@@ -185,11 +194,6 @@ impl<'a> Parser<'a> {
                 OperPrec::DefaultZero,
                 Token::RightParen,
                 |expr| expr,
-            ),
-            Token::Bar => self.get_enclosed_elements_with_impl_mult(
-                OperPrec::DefaultZero,
-                Token::Bar,
-                |expr| Node::Abs(Box::new(expr)),
             ),
             _ => Err(ParseError::UnableToParse(
                 "Unknown parsing token for parsing number".to_string(),
@@ -390,12 +394,6 @@ mod tests {
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
-    fn test_bar() {
-        let mut parser = Parser::new("|5|", None).unwrap();
-        let expected = Abs(Box::new(Number(5)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
     fn test_modulo_function() {
         let mut parser = Parser::new("mod(3,2)", None).unwrap();
         let expected = Modulo(Box::new(Number(3)), Box::new(Number(2)));
@@ -452,49 +450,43 @@ mod tests {
     #[test]
     fn test_min_function() {
         let mut parser = Parser::new("min(3)", None).unwrap();
-        let expected = Min(vec![Number(3)]);
+        let expected = Min(Arc::new(vec![Number(3)]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_min_function2() {
         let mut parser = Parser::new("min(2,3,5)", None).unwrap();
-        let expected = Min(vec![Number(2), Number(3), Number(5)]);
+        let expected = Min(Arc::new(vec![Number(2), Number(3), Number(5)]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_max_function() {
         let mut parser = Parser::new("max(3)", None).unwrap();
-        let expected = Max(vec![Number(3)]);
+        let expected = Max(Arc::new(vec![Number(3)]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_max_function2() {
         let mut parser = Parser::new("max(2,3,5)", None).unwrap();
-        let expected = Max(vec![Number(2), Number(3), Number(5)]);
+        let expected = Max(Arc::new(vec![Number(2), Number(3), Number(5)]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_avg_function() {
+        let mut parser = Parser::new("avg(3)", None).unwrap();
+        let expected = Avg(Arc::new(vec![Number(3)]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_avg_function2() {
+        let mut parser = Parser::new("avg(2,3,5)", None).unwrap();
+        let expected = Avg(Arc::new(vec![Number(2), Number(3), Number(5)]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_implicit_mul_prts() {
         let mut parser = Parser::new("(2)(3)", None).unwrap();
         let expected = Multiply(Box::new(Number(2)), Box::new(Number(3)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
-    fn test_implicit_mul_abs_prts() {
-        let mut parser = Parser::new("|2|(3)", None).unwrap();
-        let expected = Multiply(Box::new(Abs(Box::new(Number(2)))), Box::new(Number(3)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
-    fn test_no_implicit_mul_abs() {
-        let mut parser = Parser::new("|2||3|", None).unwrap();
-        let expected = Abs(Box::new(Number(2)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
-    fn test_no_implicit_mul_prts_abs() {
-        let mut parser = Parser::new("(2)|3|", None).unwrap();
-        let expected = Number(2);
         assert_eq!(parser.parse().unwrap(), expected);
     }
 }

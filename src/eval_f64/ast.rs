@@ -1,5 +1,6 @@
+use conv::ValueFrom;
 use statrs::function::gamma::gamma;
-use std::error;
+use std::{error, sync::Arc};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Node {
@@ -39,8 +40,9 @@ pub enum Node {
     Exp2(Box<Node>),
     Truncate(Box<Node>),
     Sign(Box<Node>),
-    Min(Vec<Node>),
-    Max(Vec<Node>),
+    Min(Arc<Vec<Node>>),
+    Max(Arc<Vec<Node>>),
+    Avg(Arc<Vec<Node>>),
     Number(f64),
 }
 
@@ -109,8 +111,8 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
         Min(args) => {
             if args.len() > 1 {
                 let mut result = f64::INFINITY;
-                for arg in args {
-                    result = eval(arg)?.min(result);
+                for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
+                    result = eval(arg).unwrap().min(result);
                 }
                 Ok(result)
             } else {
@@ -123,8 +125,8 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
         Max(args) => {
             if args.len() > 1 {
                 let mut result = f64::NEG_INFINITY;
-                for arg in args {
-                    result = eval(arg)?.max(result);
+                for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
+                    result = eval(arg).unwrap().max(result);
                 }
                 Ok(result)
             } else {
@@ -133,6 +135,13 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
                     None => Ok(0.0),
                 }
             }
+        }
+        Avg(args) => {
+            let mut result = 0.0;
+            for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
+                result += eval(arg).unwrap();
+            }
+            Ok(result / f64::value_from(args.len())?)
         }
         Atan2(expr1, expr2) => Ok(eval(*expr1)?.atan2(eval(*expr2)?)),
     }

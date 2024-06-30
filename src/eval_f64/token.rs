@@ -28,6 +28,7 @@ pub enum NativeFunction {
     Round,
     Min,
     Max,
+    Avg,
     Mod,
 }
 
@@ -51,7 +52,6 @@ pub enum Token {
     E,
     Pi,
     Comma,
-    Bar,
     DegToRad,
     RadToDeg,
     ExplicitFunction(NativeFunction),

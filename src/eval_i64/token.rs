@@ -12,6 +12,7 @@ pub enum NativeFunction {
     Sign,
     Min,
     Max,
+    Avg,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -30,7 +31,6 @@ pub enum Token {
     Pow2,
     Pow3,
     Comma,
-    Bar,
     ExplicitFunction(NativeFunction),
     Num(i64),
     Ans,

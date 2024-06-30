@@ -88,11 +88,6 @@ Since there's a lot of things that could be simplified visually, here's the full
 
 Some function can be written purely using their original mathematical notation if wanted.
 
-1. Abs (|x|)
-  This function compute the absolute value of a number.
-  Example:
-  `|-5|`
-  `= 5`
 1. Floor (⌊x⌋) (only in `eval_f64`)
   This function gives the greatest integer less than or equal to `x`.
   Example:

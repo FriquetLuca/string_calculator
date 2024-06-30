@@ -29,7 +29,6 @@ impl<'a> Iterator for Tokenizer<'a> {
             Some('^') => Some(Token::Caret),
             Some('(') => Some(Token::LeftParen),
             Some(')') => Some(Token::RightParen),
-            Some('|') => Some(Token::Bar),
             Some('!') => Some(Token::ExclamationMark),
             Some(',') => Some(Token::Comma),
             Some('%') => Some(Token::Modulo),
@@ -112,6 +111,9 @@ impl<'a> Iterator for Tokenizer<'a> {
                 } else if self.expr.clone().take(3).collect::<String>() == "bs(" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Abs))
+                } else if self.expr.clone().take(3).collect::<String>() == "vg(" {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Avg))
                 } else {
                     None
                 }
@@ -323,11 +325,6 @@ mod tests {
     fn test_pow3_operator() {
         let mut tokenizer = Tokenizer::new("³");
         assert_eq!(tokenizer.next().unwrap(), Token::Pow3)
-    }
-    #[test]
-    fn test_bar_operator() {
-        let mut tokenizer = Tokenizer::new("|");
-        assert_eq!(tokenizer.next().unwrap(), Token::Bar)
     }
     #[test]
     fn test_comma_operator() {
@@ -657,6 +654,14 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Max)
+        )
+    }
+    #[test]
+    fn test_avg_function() {
+        let mut tokenizer = Tokenizer::new("avg(10,20)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Avg)
         )
     }
 }
