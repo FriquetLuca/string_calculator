@@ -3,8 +3,9 @@ mod parser;
 mod token;
 mod tokenizer;
 
+use crate::utils::ParseError;
 use ast::eval;
-use parser::{ParseError, Parser};
+use parser::Parser;
 
 /// Evaluate a formula inside a string and compute it into f64.
 pub fn eval_f64(expr: String, placeholder: f64) -> Result<f64, ParseError> {

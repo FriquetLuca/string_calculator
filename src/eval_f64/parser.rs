@@ -1,9 +1,9 @@
-use std::fmt;
 use std::sync::Arc;
 
 use super::ast::Node;
-use super::token::{NativeFunction, OperPrec, Token};
+use super::token::{NativeFunction, Token};
 use super::tokenizer::Tokenizer;
+use crate::utils::{OperatorCategory, ParseError};
 
 pub struct Parser<'a> {
     tokenizer: Tokenizer<'a>,
@@ -27,14 +27,12 @@ impl<'a> Parser<'a> {
         })
     }
     pub fn parse(&mut self) -> Result<Node, ParseError> {
-        let ast = self.generate_ast(OperPrec::DefaultZero);
+        let ast = self.generate_ast(OperatorCategory::DefaultZero);
         match ast {
             Ok(ast) => Ok(ast),
             Err(e) => Err(e),
         }
     }
-}
-impl<'a> Parser<'a> {
     fn get_next_token(&mut self) -> Result<(), ParseError> {
         let next_token = match self.tokenizer.next() {
             Some(token) => token,
@@ -44,9 +42,8 @@ impl<'a> Parser<'a> {
         self.current_token = next_token;
         Ok(())
     }
-    fn generate_ast(&mut self, oper_prec: OperPrec) -> Result<Node, ParseError> {
+    fn generate_ast(&mut self, oper_prec: OperatorCategory) -> Result<Node, ParseError> {
         let mut left_expr = self.parse_number()?;
-
         while oper_prec < self.current_token.get_oper_prec() {
             if self.current_token == Token::Eof {
                 break;
@@ -61,7 +58,7 @@ impl<'a> Parser<'a> {
         self.check_paren(Token::LeftParen)?;
         let mut args = Vec::new();
         for i in 0..n {
-            let arg_expr = self.generate_ast(OperPrec::DefaultZero)?;
+            let arg_expr = self.generate_ast(OperatorCategory::DefaultZero)?;
             args.push(arg_expr);
             if i < n - 1 {
                 self.check_paren(Token::Comma)?;
@@ -71,13 +68,17 @@ impl<'a> Parser<'a> {
         Ok(args)
     }
     fn function_arguments(&mut self) -> Result<Vec<Node>, ParseError> {
-        self.find_item_list(Token::LeftParen, Token::RightParen, OperPrec::DefaultZero)
+        self.find_item_list(
+            Token::LeftParen,
+            Token::RightParen,
+            OperatorCategory::DefaultZero,
+        )
     }
     fn find_item_list(
         &mut self,
         start_token: Token,
         end_token: Token,
-        oper_prec: OperPrec,
+        oper_prec: OperatorCategory,
     ) -> Result<Vec<Node>, ParseError> {
         self.get_next_token()?;
         self.check_paren(start_token)?;
@@ -241,12 +242,12 @@ impl<'a> Parser<'a> {
             }
             Token::Subtract => {
                 self.get_next_token()?;
-                let expr = self.generate_ast(OperPrec::Negative)?;
+                let expr = self.generate_ast(OperatorCategory::Negative)?;
                 Ok(Node::Negative(Box::new(expr)))
             }
             Token::Add => {
                 self.get_next_token()?;
-                let expr = self.generate_ast(OperPrec::Negative)?;
+                let expr = self.generate_ast(OperatorCategory::Negative)?;
                 Ok(expr)
             }
             Token::Num(i) => {
@@ -262,17 +263,17 @@ impl<'a> Parser<'a> {
                 Ok(Node::Number(std::f64::consts::E))
             }
             Token::LeftParen => self.get_enclosed_elements_with_impl_mult(
-                OperPrec::DefaultZero,
+                OperatorCategory::DefaultZero,
                 Token::RightParen,
                 |expr| expr,
             ),
             Token::LeftFloor => self.get_enclosed_elements_with_impl_mult(
-                OperPrec::DefaultZero,
+                OperatorCategory::DefaultZero,
                 Token::RightFloor,
                 |expr| Node::Floor(Box::new(expr)),
             ),
             Token::LeftCeiling => self.get_enclosed_elements_with_impl_mult(
-                OperPrec::DefaultZero,
+                OperatorCategory::DefaultZero,
                 Token::RightCeiling,
                 |expr| Node::Ceil(Box::new(expr)),
             ),
@@ -288,14 +289,14 @@ impl<'a> Parser<'a> {
             || matches!(self.current_token, Token::ExplicitFunction(_))
             || matches!(self.current_token, Token::Num(_))
         {
-            let right = self.generate_ast(OperPrec::MulDiv)?;
+            let right = self.generate_ast(OperatorCategory::Multiplicative)?;
             return Ok(Node::Multiply(Box::new(node), Box::new(right)));
         }
         Ok(node)
     }
     fn get_enclosed_elements_with_impl_mult(
         &mut self,
-        oper_prec: OperPrec,
+        oper_prec: OperatorCategory,
         end_token: Token,
         get_node: fn(Node) -> Node,
     ) -> Result<Node, ParseError> {
@@ -319,27 +320,27 @@ impl<'a> Parser<'a> {
         match self.current_token {
             Token::Add => {
                 self.get_next_token()?;
-                let right_expr = self.generate_ast(OperPrec::AddSub)?;
+                let right_expr = self.generate_ast(OperatorCategory::Additive)?;
                 Ok(Node::Add(Box::new(left_expr), Box::new(right_expr)))
             }
             Token::Subtract => {
                 self.get_next_token()?;
-                let right_expr = self.generate_ast(OperPrec::AddSub)?;
+                let right_expr = self.generate_ast(OperatorCategory::Additive)?;
                 Ok(Node::Subtract(Box::new(left_expr), Box::new(right_expr)))
             }
             Token::Multiply => {
                 self.get_next_token()?;
-                let right_expr = self.generate_ast(OperPrec::MulDiv)?;
+                let right_expr = self.generate_ast(OperatorCategory::Multiplicative)?;
                 Ok(Node::Multiply(Box::new(left_expr), Box::new(right_expr)))
             }
             Token::Divide => {
                 self.get_next_token()?;
-                let right_expr = self.generate_ast(OperPrec::MulDiv)?;
+                let right_expr = self.generate_ast(OperatorCategory::Multiplicative)?;
                 Ok(Node::Divide(Box::new(left_expr), Box::new(right_expr)))
             }
             Token::Caret => {
                 self.get_next_token()?;
-                let right_expr = self.generate_ast(OperPrec::Power)?;
+                let right_expr = self.generate_ast(OperatorCategory::Power)?;
                 Ok(Node::Pow(Box::new(left_expr), Box::new(right_expr)))
             }
             Token::ExclamationMark => {
@@ -369,7 +370,7 @@ impl<'a> Parser<'a> {
             }
             Token::Modulo => {
                 self.get_next_token()?;
-                let right_expr = self.generate_ast(OperPrec::MulDiv)?;
+                let right_expr = self.generate_ast(OperatorCategory::Multiplicative)?;
                 Ok(Node::Modulo(Box::new(left_expr), Box::new(right_expr)))
             }
             _ => Err(ParseError::InvalidOperator(format!(
@@ -377,28 +378,6 @@ impl<'a> Parser<'a> {
                 self.current_token
             ))),
         }
-    }
-}
-
-#[derive(Debug)]
-pub enum ParseError {
-    UnableToParse(String),
-    InvalidOperator(String),
-}
-
-impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let message = match &self {
-            self::ParseError::UnableToParse(e) => e.clone(),
-            self::ParseError::InvalidOperator(e) => e.clone(),
-        };
-        write!(f, "Error in evaluating {}", message)
-    }
-}
-
-impl std::convert::From<std::boxed::Box<dyn std::error::Error>> for ParseError {
-    fn from(_evalerr: std::boxed::Box<dyn std::error::Error>) -> Self {
-        ParseError::UnableToParse("Unable to parse".into())
     }
 }
 
