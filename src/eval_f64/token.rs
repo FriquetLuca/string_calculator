@@ -1,3 +1,5 @@
+use crate::utils::OperatorCategory;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum NativeFunction {
     Sin,
@@ -60,26 +62,15 @@ pub enum Token {
     Eof,
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone)]
-pub enum OperPrec {
-    DefaultZero,
-    AddSub,
-    MulDiv,
-    Power,
-    Negative,
-    Functional,
-}
-
 impl Token {
-    pub fn get_oper_prec(&self) -> OperPrec {
-        use self::OperPrec::*;
+    pub fn get_oper_prec(&self) -> OperatorCategory {
         use self::Token::*;
         match *self {
-            Add | Subtract => AddSub,
-            Multiply | Divide | Modulo | DegToRad | RadToDeg => MulDiv,
-            Caret | Superscript(_) => Power,
-            ExclamationMark | ExplicitFunction(_) => Functional,
-            _ => DefaultZero,
+            Add | Subtract => OperatorCategory::Additive,
+            Multiply | Divide | Modulo | DegToRad | RadToDeg => OperatorCategory::Multiplicative,
+            Caret | Superscript(_) => OperatorCategory::Power,
+            ExclamationMark | ExplicitFunction(_) => OperatorCategory::Functional,
+            _ => OperatorCategory::DefaultZero,
         }
     }
 }

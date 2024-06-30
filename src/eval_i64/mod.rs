@@ -4,7 +4,8 @@ mod token;
 mod tokenizer;
 
 use ast::eval;
-use parser::{ParseError, Parser};
+use parser::Parser;
+use crate::utils::ParseError;
 
 /// Evaluate a formula inside a string and compute it into i64.
 pub fn eval_i64(expr: String, placeholder: i64) -> Result<i64, ParseError> {
