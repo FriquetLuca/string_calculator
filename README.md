@@ -58,16 +58,11 @@ Since there's a lot of things that could be simplified visually, here's the full
   Example:
   `3^3`
   `= 27`
-1. PowerOf2 (x²)
-  This operator handle the power of `x` by 2, `x` being a number.
+1. Subscript support (x²)
+  This operator handle the power of `x` by using the superscript notation (such as `²`) for integers, `x` being a number.
   Example:
   `5²`
   `= 25`
-1. PowerOf3 (x³)
-  This operator handle the power of `x` by 3, `x` being a number.
-  Example:
-  `4³`
-  `= 64`
 1. Factorial (x!)
   This operator handle the factorial of a real `x`.
   Example:
@@ -110,6 +105,8 @@ Some function can be written purely using their original mathematical notation i
 1. Exponential (exp(x), exp2(x))
 1. Logarithm (ln(x), log(x, b))
 1. Extremum (min(...X), max(...X))
+1. Avg (avg(...X))
+1. Median (median(...X), med(...X))
 1. Truncate (trunc(x), truncate(x)) (only in `eval_f64`)
 1. Floor (floor(x)) (only in `eval_f64`)
 1. Ceil (ceil(x)) (only in `eval_f64`)
