@@ -183,6 +183,10 @@ impl<'a> Parser<'a> {
                         let args = self.function_static_arguments(2)?;
                         Node::Atan2(Box::new(args[0].clone()), Box::new(args[1].clone()))
                     }
+                    NativeFunction::Mod => {
+                        let args = self.function_static_arguments(2)?;
+                        Node::Modulo(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
                     NativeFunction::Pow => {
                         let args = self.function_static_arguments(2)?;
                         Node::Pow(Box::new(args[0].clone()), Box::new(args[1].clone()))
@@ -384,12 +388,291 @@ impl std::convert::From<std::boxed::Box<dyn std::error::Error>> for ParseError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::eval_f64::ast::Node::{Add, Number};
+    use crate::eval_f64::ast::Node::*;
 
     #[test]
-    fn test_addition() {
+    fn test_pi() {
+        let mut parser = Parser::new("pi", None).unwrap();
+        let expected = Number(std::f64::consts::PI);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_e() {
+        let mut parser = Parser::new("e", None).unwrap();
+        let expected = Number(std::f64::consts::E);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_negative() {
+        let mut parser = Parser::new("-1", None).unwrap();
+        let expected = Negative(Box::new(Number(1.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_add() {
         let mut parser = Parser::new("1+2", None).unwrap();
         let expected = Add(Box::new(Number(1.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_subtract() {
+        let mut parser = Parser::new("1-2", None).unwrap();
+        let expected = Subtract(Box::new(Number(1.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_multiply() {
+        let mut parser = Parser::new("1*2", None).unwrap();
+        let expected = Multiply(Box::new(Number(1.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_divide() {
+        let mut parser = Parser::new("1/2", None).unwrap();
+        let expected = Divide(Box::new(Number(1.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_modulo() {
+        let mut parser = Parser::new("1%2", None).unwrap();
+        let expected = Modulo(Box::new(Number(1.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_caret() {
+        let mut parser = Parser::new("1^2", None).unwrap();
+        let expected = Caret(Box::new(Number(1.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_exclamation_mark() {
+        let mut parser = Parser::new("1!", None).unwrap();
+        let expected = Factorial(Box::new(Number(1.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_deg_to_rad() {
+        let mut parser = Parser::new("1°", None).unwrap();
+        let expected = Multiply(
+            Box::new(Number(1.0)),
+            Box::new(Number(0.017453292519943295)),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_rad_to_deg() {
+        let mut parser = Parser::new("1rad", None).unwrap();
+        let expected = Multiply(Box::new(Number(1.0)), Box::new(Number(57.2957795131)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_pow2() {
+        let mut parser = Parser::new("1²", None).unwrap();
+        let expected = Pow2(Box::new(Number(1.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_pow3() {
+        let mut parser = Parser::new("1³", None).unwrap();
+        let expected = Pow3(Box::new(Number(1.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_bar() {
+        let mut parser = Parser::new("|5|", None).unwrap();
+        let expected = Abs(Box::new(Number(5.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_floor() {
+        let mut parser = Parser::new("⌊5.25⌋", None).unwrap();
+        let expected = Floor(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_ceil() {
+        let mut parser = Parser::new("⌈5.25⌉", None).unwrap();
+        let expected = Ceil(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_modulo_function() {
+        let mut parser = Parser::new("mod(3,2)", None).unwrap();
+        let expected = Modulo(Box::new(Number(3.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_pow_function() {
+        let mut parser = Parser::new("pow(3,2)", None).unwrap();
+        let expected = Pow(Box::new(Number(3.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_log_function() {
+        let mut parser = Parser::new("log(3,2)", None).unwrap();
+        let expected = Log(Box::new(Number(3.0)), Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_abs_function() {
+        let mut parser = Parser::new("abs(5.25)", None).unwrap();
+        let expected = Abs(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_floor_function() {
+        let mut parser = Parser::new("floor(5.25)", None).unwrap();
+        let expected = Floor(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_ceil_function() {
+        let mut parser = Parser::new("ceil(5.25)", None).unwrap();
+        let expected = Ceil(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_round_function() {
+        let mut parser = Parser::new("round(5.25)", None).unwrap();
+        let expected = Round(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_truncate_function() {
+        let mut parser = Parser::new("truncate(5.25)", None).unwrap();
+        let expected = Truncate(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_sqrt_function() {
+        let mut parser = Parser::new("sqrt(5.25)", None).unwrap();
+        let expected = Sqrt(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_exp_function() {
+        let mut parser = Parser::new("exp(5.25)", None).unwrap();
+        let expected = Exp(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_exp2_function() {
+        let mut parser = Parser::new("exp2(5.25)", None).unwrap();
+        let expected = Exp2(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_ln_function() {
+        let mut parser = Parser::new("ln(5.25)", None).unwrap();
+        let expected = Ln(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_sign_function() {
+        let mut parser = Parser::new("sign(5.25)", None).unwrap();
+        let expected = Sign(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_sin_function() {
+        let mut parser = Parser::new("sin(5.25)", None).unwrap();
+        let expected = Sin(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_cos_function() {
+        let mut parser = Parser::new("cos(5.25)", None).unwrap();
+        let expected = Cos(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_tan_function() {
+        let mut parser = Parser::new("tan(5.25)", None).unwrap();
+        let expected = Tan(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_sinh_function() {
+        let mut parser = Parser::new("sinh(5.25)", None).unwrap();
+        let expected = Sinh(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_cosh_function() {
+        let mut parser = Parser::new("cosh(5.25)", None).unwrap();
+        let expected = Cosh(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_tanh_function() {
+        let mut parser = Parser::new("tanh(5.25)", None).unwrap();
+        let expected = Tanh(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_asin_function() {
+        let mut parser = Parser::new("asin(5.25)", None).unwrap();
+        let expected = Asin(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_acos_function() {
+        let mut parser = Parser::new("acos(5.25)", None).unwrap();
+        let expected = Acos(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_atan_function() {
+        let mut parser = Parser::new("atan(5.25)", None).unwrap();
+        let expected = Atan(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_atan2_function() {
+        let mut parser = Parser::new("atan2(5.25,7.8)", None).unwrap();
+        let expected = Atan2(Box::new(Number(5.25)), Box::new(Number(7.8)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_arsinh_function() {
+        let mut parser = Parser::new("arsinh(5.25)", None).unwrap();
+        let expected = Arsinh(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_arcosh_function() {
+        let mut parser = Parser::new("arcosh(5.25)", None).unwrap();
+        let expected = Arcosh(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_artanh_function() {
+        let mut parser = Parser::new("artanh(5.25)", None).unwrap();
+        let expected = Artanh(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_min_function() {
+        let mut parser = Parser::new("min(3)", None).unwrap();
+        let expected = Min(vec![Number(3.0)]);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_min_function2() {
+        let mut parser = Parser::new("min(2,3,5)", None).unwrap();
+        let expected = Min(vec![Number(2.0), Number(3.0), Number(5.0)]);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_max_function() {
+        let mut parser = Parser::new("max(3)", None).unwrap();
+        let expected = Max(vec![Number(3.0)]);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_max_function2() {
+        let mut parser = Parser::new("max(2,3,5)", None).unwrap();
+        let expected = Max(vec![Number(2.0), Number(3.0), Number(5.0)]);
         assert_eq!(parser.parse().unwrap(), expected);
     }
 }

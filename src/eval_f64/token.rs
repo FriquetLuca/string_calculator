@@ -27,6 +27,7 @@ pub enum NativeFunction {
     Round,
     Min,
     Max,
+    Mod,
 }
 
 #[derive(Debug, PartialEq, Clone)]

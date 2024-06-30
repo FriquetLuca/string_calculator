@@ -308,7 +308,7 @@ impl std::convert::From<std::boxed::Box<dyn std::error::Error>> for ParseError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::eval_i64::ast::Node::{Add, Number};
+    use crate::eval_i64::ast::Node::*;
 
     #[test]
     fn test_addition() {

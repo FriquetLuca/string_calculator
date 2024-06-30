@@ -91,6 +91,15 @@ impl<'a> Iterator for Tokenizer<'a> {
                 } else if self.expr.clone().take(6).collect::<String>() == "rtanh(" {
                     self.expr.by_ref().take(5).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Artanh))
+                } else if self.expr.clone().take(5).collect::<String>() == "sinh(" {
+                    self.expr.by_ref().take(4).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Arsinh))
+                } else if self.expr.clone().take(5).collect::<String>() == "cosh(" {
+                    self.expr.by_ref().take(4).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Arcosh))
+                } else if self.expr.clone().take(5).collect::<String>() == "tanh(" {
+                    self.expr.by_ref().take(4).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Artanh))
                 } else if self.expr.clone().take(4).collect::<String>() == "sinh(" {
                     self.expr.by_ref().take(3).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Arsinh))
@@ -158,6 +167,9 @@ impl<'a> Iterator for Tokenizer<'a> {
                 } else if self.expr.clone().take(3).collect::<String>() == "ax(" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Max))
+                } else if self.expr.clone().take(3).collect::<String>() == "od(" {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Mod))
                 } else {
                     None
                 }
@@ -445,6 +457,30 @@ mod tests {
         )
     }
     #[test]
+    fn test_asinh_function() {
+        let mut tokenizer = Tokenizer::new("asinh(3.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Arsinh)
+        )
+    }
+    #[test]
+    fn test_acosh_function() {
+        let mut tokenizer = Tokenizer::new("acosh(3.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Arcosh)
+        )
+    }
+    #[test]
+    fn test_atanh_function() {
+        let mut tokenizer = Tokenizer::new("atanh(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Artanh)
+        )
+    }
+    #[test]
     fn test_arsinh_function() {
         let mut tokenizer = Tokenizer::new("arsinh(3.14159)");
         assert_eq!(
@@ -490,6 +526,14 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Pow)
+        )
+    }
+    #[test]
+    fn test_mod_function() {
+        let mut tokenizer = Tokenizer::new("mod(2.14159,2)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Mod)
         )
     }
     #[test]
