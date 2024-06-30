@@ -29,6 +29,7 @@ pub enum NativeFunction {
     Min,
     Max,
     Avg,
+    Med,
     Mod,
 }
 
@@ -47,14 +48,13 @@ pub enum Token {
     RightFloor,
     LeftCeiling,
     RightCeiling,
-    Pow2,
-    Pow3,
     E,
     Pi,
     Comma,
     DegToRad,
     RadToDeg,
     ExplicitFunction(NativeFunction),
+    Superscript(f64),
     Num(f64),
     Ans,
     Eof,
@@ -77,7 +77,7 @@ impl Token {
         match *self {
             Add | Subtract => AddSub,
             Multiply | Divide | Modulo | DegToRad | RadToDeg => MulDiv,
-            Caret | Pow2 | Pow3 => Power,
+            Caret | Superscript(_) => Power,
             ExclamationMark | ExplicitFunction(_) => Functional,
             _ => DefaultZero,
         }
