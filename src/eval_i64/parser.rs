@@ -68,7 +68,11 @@ impl<'a> Parser<'a> {
         Ok(args)
     }
     fn function_arguments(&mut self) -> Result<Vec<Node>, ParseError> {
-        self.find_item_list(Token::LeftParen, Token::RightParen, OperatorCategory::DefaultZero)
+        self.find_item_list(
+            Token::LeftParen,
+            Token::RightParen,
+            OperatorCategory::DefaultZero,
+        )
     }
     fn find_item_list(
         &mut self,
