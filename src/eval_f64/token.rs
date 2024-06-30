@@ -29,6 +29,7 @@ pub enum NativeFunction {
     Min,
     Max,
     Avg,
+    Med,
     Mod,
 }
 

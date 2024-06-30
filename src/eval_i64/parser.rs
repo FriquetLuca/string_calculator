@@ -173,6 +173,16 @@ impl<'a> Parser<'a> {
                             Node::Avg(Arc::new(args))
                         }
                     }
+                    NativeFunction::Med => {
+                        let args = self.function_arguments()?;
+                        if args.is_empty() {
+                            return Err(ParseError::UnableToParse(
+                                "Cannot compute the median of no arguments".to_string(),
+                            ));
+                        } else {
+                            Node::Med(Arc::new(args))
+                        }
+                    }
                 };
                 self.implicit_multiply(current_function)
             }
@@ -496,6 +506,18 @@ mod tests {
     fn test_implicit_mul_prts() {
         let mut parser = Parser::new("(2)(3)", None).unwrap();
         let expected = Multiply(Box::new(Number(2)), Box::new(Number(3)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_med_function() {
+        let mut parser = Parser::new("med(3)", None).unwrap();
+        let expected = Med(Arc::new(vec![Number(3)]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_med_function2() {
+        let mut parser = Parser::new("med(2,3,5)", None).unwrap();
+        let expected = Med(Arc::new(vec![Number(2), Number(3), Number(5)]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
 }

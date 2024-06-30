@@ -187,20 +187,30 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('m') => match self.expr.clone().take(3).collect::<String>().as_str() {
-                "in(" => {
-                    self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Min))
+            Some('m') => match self.expr.clone().take(6).collect::<String>().as_str() {
+                "edian(" => {
+                    self.expr.by_ref().take(5).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Med))
                 }
-                "ax(" => {
-                    self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Max))
-                }
-                "od(" => {
-                    self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Mod))
-                }
-                _ => None,
+                _ => match self.expr.clone().take(3).collect::<String>().as_str() {
+                    "in(" => {
+                        self.expr.by_ref().take(2).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Min))
+                    }
+                    "ax(" => {
+                        self.expr.by_ref().take(2).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Max))
+                    }
+                    "od(" => {
+                        self.expr.by_ref().take(2).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Mod))
+                    }
+                    "ed(" => {
+                        self.expr.by_ref().take(2).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Med))
+                    }
+                    _ => None,
+                },
             },
             Some('p') => {
                 if self.expr.clone().take(3).collect::<String>() == "ow(" {
@@ -691,6 +701,22 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Avg)
+        )
+    }
+    #[test]
+    fn test_median_function() {
+        let mut tokenizer = Tokenizer::new("med(10,20)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Med)
+        )
+    }
+    #[test]
+    fn test_median_function2() {
+        let mut tokenizer = Tokenizer::new("median(10,20)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Med)
         )
     }
 }

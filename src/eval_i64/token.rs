@@ -13,6 +13,7 @@ pub enum NativeFunction {
     Min,
     Max,
     Avg,
+    Med,
 }
 
 #[derive(Debug, PartialEq, Clone)]

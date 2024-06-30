@@ -23,6 +23,7 @@ pub enum Node {
     Min(Arc<Vec<Node>>),
     Max(Arc<Vec<Node>>),
     Avg(Arc<Vec<Node>>),
+    Med(Arc<Vec<Node>>),
     Root(Box<Node>, Box<Node>),
     Log(Box<Node>, Box<Node>),
     Number(i64),
@@ -119,6 +120,19 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
             }
             Ok(result / (args.len() as i64))
         }
+        Med(args) => {
+            let mut results = vec![];
+            for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
+                results.push(eval(arg).unwrap());
+            }
+            results.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            let len = results.len();
+            if len % 2 == 0 {
+                Ok((results[len >> 1] + results[(len >> 1) - 1]) / 2)
+            } else {
+                Ok(results[len >> 1])
+            }
+        }
     }
 }
 
@@ -185,5 +199,20 @@ mod tests {
         let ast = Parser::new("1+1&3|1", None).unwrap().parse().unwrap();
         let value = eval(ast).unwrap();
         assert_eq!(value, 3);
+    }
+    #[test]
+    fn test_expr11() {
+        let ast = Parser::new("med(5,2,8,9,7)", None)
+            .unwrap()
+            .parse()
+            .unwrap();
+        let value = eval(ast).unwrap();
+        assert_eq!(value, 7);
+    }
+    #[test]
+    fn test_expr12() {
+        let ast = Parser::new("med(5,2,8,9)", None).unwrap().parse().unwrap();
+        let value = eval(ast).unwrap();
+        assert_eq!(value, 6);
     }
 }
