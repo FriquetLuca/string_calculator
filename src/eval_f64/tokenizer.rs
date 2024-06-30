@@ -601,6 +601,14 @@ mod tests {
         )
     }
     #[test]
+    fn test_truncate_function2() {
+        let mut tokenizer = Tokenizer::new("trunc(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Truncate)
+        )
+    }
+    #[test]
     fn test_floor_function() {
         let mut tokenizer = Tokenizer::new("floor(.14159)");
         assert_eq!(

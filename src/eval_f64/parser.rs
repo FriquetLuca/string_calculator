@@ -675,4 +675,94 @@ mod tests {
         let expected = Max(vec![Number(2.0), Number(3.0), Number(5.0)]);
         assert_eq!(parser.parse().unwrap(), expected);
     }
+    #[test]
+    fn test_implicit_mul_prts() {
+        let mut parser = Parser::new("(2)(3)", None).unwrap();
+        let expected = Multiply(Box::new(Number(2.0)), Box::new(Number(3.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_prts_floor() {
+        let mut parser = Parser::new("(2)⌊3⌋", None).unwrap();
+        let expected = Multiply(
+            Box::new(Number(2.0)),
+            Box::new(Floor(Box::new(Number(3.0)))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_floor_prts() {
+        let mut parser = Parser::new("⌊2⌋(3)", None).unwrap();
+        let expected = Multiply(
+            Box::new(Floor(Box::new(Number(2.0)))),
+            Box::new(Number(3.0)),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_prts_ceil() {
+        let mut parser = Parser::new("(2)⌈3⌉", None).unwrap();
+        let expected = Multiply(Box::new(Number(2.0)), Box::new(Ceil(Box::new(Number(3.0)))));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_ceil_prts() {
+        let mut parser = Parser::new("⌈2⌉(3)", None).unwrap();
+        let expected = Multiply(Box::new(Ceil(Box::new(Number(2.0)))), Box::new(Number(3.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_floors() {
+        let mut parser = Parser::new("⌊2⌋⌊3⌋", None).unwrap();
+        let expected = Multiply(
+            Box::new(Floor(Box::new(Number(2.0)))),
+            Box::new(Floor(Box::new(Number(3.0)))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_ceils() {
+        let mut parser = Parser::new("⌈2⌉⌈3⌉", None).unwrap();
+        let expected = Multiply(
+            Box::new(Ceil(Box::new(Number(2.0)))),
+            Box::new(Ceil(Box::new(Number(3.0)))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_floor_ceil() {
+        let mut parser = Parser::new("⌊2⌋⌈3⌉", None).unwrap();
+        let expected = Multiply(
+            Box::new(Floor(Box::new(Number(2.0)))),
+            Box::new(Ceil(Box::new(Number(3.0)))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_ceil_floor() {
+        let mut parser = Parser::new("⌈2⌉⌊3⌋", None).unwrap();
+        let expected = Multiply(
+            Box::new(Ceil(Box::new(Number(2.0)))),
+            Box::new(Floor(Box::new(Number(3.0)))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_abs_prts() {
+        let mut parser = Parser::new("|2|(3)", None).unwrap();
+        let expected = Multiply(Box::new(Abs(Box::new(Number(2.0)))), Box::new(Number(3.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_no_implicit_mul_abs() {
+        let mut parser = Parser::new("|2||3|", None).unwrap();
+        let expected = Abs(Box::new(Number(2.0)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_no_implicit_mul_prts_abs() {
+        let mut parser = Parser::new("(2)|3|", None).unwrap();
+        let expected = Number(2.0);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
 }

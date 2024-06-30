@@ -7,6 +7,7 @@ pub enum NativeFunction {
     Root,
     Exp2,
     Abs,
+    Mod,
     Sign,
     Min,
     Max,

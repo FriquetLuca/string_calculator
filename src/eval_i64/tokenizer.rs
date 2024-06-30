@@ -96,6 +96,9 @@ impl<'a> Iterator for Tokenizer<'a> {
                 } else if self.expr.clone().take(3).collect::<String>() == "ax(" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Max))
+                } else if self.expr.clone().take(3).collect::<String>() == "od(" {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Mod))
                 } else {
                     None
                 }
@@ -242,6 +245,14 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Log)
+        )
+    }
+    #[test]
+    fn test_mod_function() {
+        let mut tokenizer = Tokenizer::new("mod(20,2)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Mod)
         )
     }
     #[test]
