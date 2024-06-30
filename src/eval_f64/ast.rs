@@ -9,7 +9,6 @@ pub enum Node {
     Multiply(Box<Node>, Box<Node>),
     Divide(Box<Node>, Box<Node>),
     Modulo(Box<Node>, Box<Node>),
-    Caret(Box<Node>, Box<Node>),
     Atan2(Box<Node>, Box<Node>),
     Root(Box<Node>, Box<Node>),
     Pow(Box<Node>, Box<Node>),
@@ -33,8 +32,6 @@ pub enum Node {
     Acos(Box<Node>),
     Atan(Box<Node>),
     Sqrt(Box<Node>),
-    Pow2(Box<Node>),
-    Pow3(Box<Node>),
     Ln(Box<Node>),
     Exp(Box<Node>),
     Exp2(Box<Node>),
@@ -56,7 +53,6 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
         Divide(expr1, expr2) => Ok(eval(*expr1)? / eval(*expr2)?),
         Modulo(expr1, expr2) => Ok(eval(*expr1)? % eval(*expr2)?),
         Negative(expr1) => Ok(-(eval(*expr1)?)),
-        Caret(expr1, expr2) => Ok(eval(*expr1)?.powf(eval(*expr2)?)),
         Pow(expr1, expr2) => Ok(eval(*expr1)?.powf(eval(*expr2)?)),
         Root(n_th_expr, x_expr) => Ok(eval(*x_expr)?.powf(1.0 / eval(*n_th_expr)?)),
         Factorial(sub_expr) => {
@@ -100,14 +96,6 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
         Exp(sub_expr) => Ok(eval(*sub_expr)?.exp()),
         Exp2(sub_expr) => Ok(eval(*sub_expr)?.exp2()),
         Log(expr1, expr2) => Ok(eval(*expr1)?.log(eval(*expr2)?)),
-        Pow2(sub_expr) => {
-            let result = eval(*sub_expr)?;
-            Ok(result * result)
-        }
-        Pow3(sub_expr) => {
-            let result = eval(*sub_expr)?;
-            Ok(result * result * result)
-        }
         Min(args) => {
             if args.len() > 1 {
                 let mut result = f64::INFINITY;

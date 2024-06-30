@@ -1,3 +1,5 @@
+use crate::utils::superscript_digit_to_digit;
+
 use super::token::{NativeFunction, Token};
 use std::iter::Peekable;
 use std::str::Chars;
@@ -37,8 +39,6 @@ impl<'a> Iterator for Tokenizer<'a> {
             Some('⌋') => Some(Token::RightFloor),
             Some('⌈') => Some(Token::LeftCeiling),
             Some('⌉') => Some(Token::RightCeiling),
-            Some('²') => Some(Token::Pow2),
-            Some('³') => Some(Token::Pow3),
             Some('°') => Some(Token::DegToRad),
             Some('.') => {
                 let next_char = self.expr.peek()?;
@@ -57,6 +57,21 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
+            Some('⁰'..='⁹') => {
+                let current_char = current_char?;
+                let mut number = superscript_digit_to_digit(&current_char)
+                    .map(|c| c.to_string())
+                    .unwrap_or_default();
+                while let Some(next_char) = self.expr.peek() {
+                    if let Some(next_char) = superscript_digit_to_digit(next_char) {
+                        self.expr.next();
+                        number.push(next_char);
+                    } else {
+                        break;
+                    }
+                }
+                Some(Token::Superscript(number.parse::<f64>().unwrap()))
+            },
             Some('0'..='9') => {
                 let mut number = current_char?.to_string();
                 while let Some(next_char) = self.expr.peek() {
@@ -257,6 +272,11 @@ mod tests {
         assert_eq!(tokenizer.next().unwrap(), Token::Num(34.0))
     }
     #[test]
+    fn test_superscript_number() {
+        let mut tokenizer = Tokenizer::new("⁰¹²³⁴⁵⁶⁷⁸⁹");
+        assert_eq!(tokenizer.next().unwrap(), Token::Superscript(123456789.0))
+    }
+    #[test]
     fn test_decimal_number() {
         let mut tokenizer = Tokenizer::new("34.5");
         assert_eq!(tokenizer.next().unwrap(), Token::Num(34.5))
@@ -315,16 +335,6 @@ mod tests {
     fn test_ans_operator() {
         let mut tokenizer = Tokenizer::new("@");
         assert_eq!(tokenizer.next().unwrap(), Token::Ans)
-    }
-    #[test]
-    fn test_pow2_operator() {
-        let mut tokenizer = Tokenizer::new("²");
-        assert_eq!(tokenizer.next().unwrap(), Token::Pow2)
-    }
-    #[test]
-    fn test_pow3_operator() {
-        let mut tokenizer = Tokenizer::new("³");
-        assert_eq!(tokenizer.next().unwrap(), Token::Pow3)
     }
     #[test]
     fn test_comma_operator() {

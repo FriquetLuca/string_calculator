@@ -2,6 +2,8 @@ use std::{error, sync::Arc};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Node {
+    And(Box<Node>, Box<Node>),
+    Or(Box<Node>, Box<Node>),
     LeftShift(Box<Node>, Box<Node>),
     RightShift(Box<Node>, Box<Node>),
     Add(Box<Node>, Box<Node>),
@@ -9,14 +11,11 @@ pub enum Node {
     Multiply(Box<Node>, Box<Node>),
     Divide(Box<Node>, Box<Node>),
     Modulo(Box<Node>, Box<Node>),
-    Caret(Box<Node>, Box<Node>),
     Negative(Box<Node>),
     Factorial(Box<Node>),
     Abs(Box<Node>),
     Sqrt(Box<Node>),
     Pow(Box<Node>, Box<Node>),
-    Pow2(Box<Node>),
-    Pow3(Box<Node>),
     Ln(Box<Node>),
     Exp(Box<Node>),
     Exp2(Box<Node>),
@@ -33,6 +32,8 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
     use self::Node::*;
     match expr {
         Number(i) => Ok(i),
+        And(expr1, expr2) => Ok(eval(*expr1)? & eval(*expr2)?),
+        Or(expr1, expr2) => Ok(eval(*expr1)? | eval(*expr2)?),
         LeftShift(expr1, expr2) => Ok(eval(*expr1)? << eval(*expr2)?),
         RightShift(expr1, expr2) => Ok(eval(*expr1)? >> eval(*expr2)?),
         Add(expr1, expr2) => Ok(eval(*expr1)? + eval(*expr2)?),
@@ -41,7 +42,6 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
         Divide(expr1, expr2) => Ok(eval(*expr1)? / eval(*expr2)?),
         Modulo(expr1, expr2) => Ok(eval(*expr1)? % eval(*expr2)?),
         Negative(expr1) => Ok(-(eval(*expr1)?)),
-        Caret(expr1, expr2) => Ok(eval(*expr1)?.pow(eval(*expr2)? as u32)),
         Pow(expr1, expr2) => Ok(eval(*expr1)?.pow(eval(*expr2)? as u32)),
         Factorial(sub_expr) => {
             let sub_result = eval(*sub_expr)?;
@@ -83,14 +83,6 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
             let eval_1 = eval(*expr1)? as f64;
             let eval_2 = eval(*expr2)? as f64;
             Ok(eval_1.log(eval_2) as i64)
-        }
-        Pow2(sub_expr) => {
-            let result = eval(*sub_expr)?;
-            Ok(result * result)
-        }
-        Pow3(sub_expr) => {
-            let result = eval(*sub_expr)?;
-            Ok(result * result * result)
         }
         Min(args) => {
             if args.len() > 1 {
@@ -175,5 +167,23 @@ mod tests {
         let ast = Parser::new("root(2,35)", None).unwrap().parse().unwrap();
         let value = eval(ast).unwrap();
         assert_eq!(value, 5);
+    }
+    #[test]
+    fn test_expr8() {
+        let ast = Parser::new("1|2|4", None).unwrap().parse().unwrap();
+        let value = eval(ast).unwrap();
+        assert_eq!(value, 7);
+    }
+    #[test]
+    fn test_expr9() {
+        let ast = Parser::new("1&3", None).unwrap().parse().unwrap();
+        let value = eval(ast).unwrap();
+        assert_eq!(value, 1);
+    }
+    #[test]
+    fn test_expr10() {
+        let ast = Parser::new("1+1&3|1", None).unwrap().parse().unwrap();
+        let value = eval(ast).unwrap();
+        assert_eq!(value, 3);
     }
 }

@@ -234,6 +234,16 @@ impl<'a> Parser<'a> {
     }
     fn convert_token_to_node(&mut self, left_expr: Node) -> Result<Node, ParseError> {
         match self.current_token {
+            Token::Ampersand => {
+                self.get_next_token()?;
+                let right_expr = self.generate_ast(OperPrec::And)?;
+                Ok(Node::And(Box::new(left_expr), Box::new(right_expr)))
+            }
+            Token::Bar => {
+                self.get_next_token()?;
+                let right_expr = self.generate_ast(OperPrec::Or)?;
+                Ok(Node::Or(Box::new(left_expr), Box::new(right_expr)))
+            }
             Token::LeftShift => {
                 self.get_next_token()?;
                 let right_expr = self.generate_ast(OperPrec::Shift)?;
@@ -267,19 +277,15 @@ impl<'a> Parser<'a> {
             Token::Caret => {
                 self.get_next_token()?;
                 let right_expr = self.generate_ast(OperPrec::Power)?;
-                Ok(Node::Caret(Box::new(left_expr), Box::new(right_expr)))
+                Ok(Node::Pow(Box::new(left_expr), Box::new(right_expr)))
             }
             Token::ExclamationMark => {
                 self.get_next_token()?;
                 self.implicit_multiply(Node::Factorial(Box::new(left_expr)))
             }
-            Token::Pow2 => {
+            Token::Superscript(script) => {
                 self.get_next_token()?;
-                Ok(Node::Pow2(Box::new(left_expr)))
-            }
-            Token::Pow3 => {
-                self.get_next_token()?;
-                Ok(Node::Pow3(Box::new(left_expr)))
+                Ok(Node::Pow(Box::new(left_expr), Box::new(Node::Number(script))))
             }
             Token::Modulo => {
                 self.get_next_token()?;
@@ -321,6 +327,18 @@ mod tests {
     use super::*;
     use crate::eval_i64::ast::Node::*;
 
+    #[test]
+    fn test_and() {
+        let mut parser = Parser::new("1&2", None).unwrap();
+        let expected = Node::And(Box::new(Number(1)), Box::new(Number(2)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_or() {
+        let mut parser = Parser::new("1|2", None).unwrap();
+        let expected = Node::Or(Box::new(Number(1)), Box::new(Number(2)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
     #[test]
     fn test_left_shift() {
         let mut parser = Parser::new("1<<2", None).unwrap();
@@ -372,25 +390,13 @@ mod tests {
     #[test]
     fn test_caret() {
         let mut parser = Parser::new("1^2", None).unwrap();
-        let expected = Caret(Box::new(Number(1)), Box::new(Number(2)));
+        let expected = Pow(Box::new(Number(1)), Box::new(Number(2)));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_exclamation_mark() {
         let mut parser = Parser::new("1!", None).unwrap();
         let expected = Factorial(Box::new(Number(1)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
-    fn test_pow2() {
-        let mut parser = Parser::new("1²", None).unwrap();
-        let expected = Pow2(Box::new(Number(1)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
-    fn test_pow3() {
-        let mut parser = Parser::new("1³", None).unwrap();
-        let expected = Pow3(Box::new(Number(1)));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]

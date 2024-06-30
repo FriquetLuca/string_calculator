@@ -17,6 +17,8 @@ pub enum NativeFunction {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
+    Ampersand,
+    Bar,
     LeftShift,
     RightShift,
     Add,
@@ -28,10 +30,9 @@ pub enum Token {
     Modulo,
     LeftParen,
     RightParen,
-    Pow2,
-    Pow3,
     Comma,
     ExplicitFunction(NativeFunction),
+    Superscript(i64),
     Num(i64),
     Ans,
     Eof,
@@ -40,6 +41,8 @@ pub enum Token {
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub enum OperPrec {
     DefaultZero,
+    Or,
+    And,
     Shift,
     AddSub,
     MulDiv,
@@ -53,10 +56,12 @@ impl Token {
         use self::OperPrec::*;
         use self::Token::*;
         match *self {
+            Bar => Or,
+            Ampersand => And,
             LeftShift | RightShift => Shift,
             Add | Subtract => AddSub,
             Multiply | Divide | Modulo => MulDiv,
-            Caret | Pow2 | Pow3 => Power,
+            Caret | Superscript(_) => Power,
             ExclamationMark | ExplicitFunction(_) => Functional,
             _ => DefaultZero,
         }

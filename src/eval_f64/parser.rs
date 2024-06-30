@@ -330,7 +330,7 @@ impl<'a> Parser<'a> {
             Token::Caret => {
                 self.get_next_token()?;
                 let right_expr = self.generate_ast(OperPrec::Power)?;
-                Ok(Node::Caret(Box::new(left_expr), Box::new(right_expr)))
+                Ok(Node::Pow(Box::new(left_expr), Box::new(right_expr)))
             }
             Token::ExclamationMark => {
                 self.get_next_token()?;
@@ -350,13 +350,9 @@ impl<'a> Parser<'a> {
                     Box::new(Node::Number(57.2957795131)),
                 ))
             }
-            Token::Pow2 => {
+            Token::Superscript(script) => {
                 self.get_next_token()?;
-                Ok(Node::Pow2(Box::new(left_expr)))
-            }
-            Token::Pow3 => {
-                self.get_next_token()?;
-                Ok(Node::Pow3(Box::new(left_expr)))
+                Ok(Node::Pow(Box::new(left_expr), Box::new(Node::Number(script))))
             }
             Token::Modulo => {
                 self.get_next_token()?;
@@ -449,7 +445,7 @@ mod tests {
     #[test]
     fn test_caret() {
         let mut parser = Parser::new("1^2", None).unwrap();
-        let expected = Caret(Box::new(Number(1.0)), Box::new(Number(2.0)));
+        let expected = Pow(Box::new(Number(1.0)), Box::new(Number(2.0)));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -471,18 +467,6 @@ mod tests {
     fn test_rad_to_deg() {
         let mut parser = Parser::new("1rad", None).unwrap();
         let expected = Multiply(Box::new(Number(1.0)), Box::new(Number(57.2957795131)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
-    fn test_pow2() {
-        let mut parser = Parser::new("1²", None).unwrap();
-        let expected = Pow2(Box::new(Number(1.0)));
-        assert_eq!(parser.parse().unwrap(), expected);
-    }
-    #[test]
-    fn test_pow3() {
-        let mut parser = Parser::new("1³", None).unwrap();
-        let expected = Pow3(Box::new(Number(1.0)));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
