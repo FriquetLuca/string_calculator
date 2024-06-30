@@ -352,7 +352,10 @@ impl<'a> Parser<'a> {
             }
             Token::Superscript(script) => {
                 self.get_next_token()?;
-                Ok(Node::Pow(Box::new(left_expr), Box::new(Node::Number(script))))
+                Ok(Node::Pow(
+                    Box::new(left_expr),
+                    Box::new(Node::Number(script)),
+                ))
             }
             Token::Modulo => {
                 self.get_next_token()?;

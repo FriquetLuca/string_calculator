@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Optimize vector use with `Arc`.
 Removal of useless `Caret` ast.
+Less string extract in tokenizer for comparison, making the tokenizer faster.
 
 ### Removed
 

@@ -66,7 +66,7 @@ impl<'a> Iterator for Tokenizer<'a> {
                     }
                 }
                 Some(Token::Superscript(number.parse::<i64>().unwrap()))
-            },
+            }
             Some('0'..='9') => {
                 let mut number = current_char?.to_string();
                 while let Some(next_char) = self.expr.peek() {
@@ -78,53 +78,54 @@ impl<'a> Iterator for Tokenizer<'a> {
                 }
                 Some(Token::Num(number.parse::<i64>().unwrap()))
             }
-            Some('a') => {
-                if self.expr.clone().take(3).collect::<String>() == "bs(" {
+            Some('a') => match self.expr.clone().take(3).collect::<String>().as_str() {
+                "bs(" => {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Abs))
-                } else if self.expr.clone().take(3).collect::<String>() == "vg(" {
+                }
+                "vg(" => {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Avg))
-                } else {
-                    None
                 }
-            }
+                _ => None,
+            },
             Some('e') => {
-                if self.expr.clone().take(3).collect::<String>() == "xp(" {
-                    self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Exp))
-                } else if self.expr.clone().take(4).collect::<String>() == "xp2(" {
+                if self.expr.clone().take(4).collect::<String>() == "xp2(" {
                     self.expr.by_ref().take(3).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Exp2))
+                } else if self.expr.clone().take(3).collect::<String>() == "xp(" {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Exp))
                 } else {
                     None
                 }
             }
             Some('l') => {
-                if self.expr.clone().take(2).collect::<String>() == "n(" {
-                    self.expr.by_ref().take(1).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Ln))
-                } else if self.expr.clone().take(3).collect::<String>() == "og(" {
+                if self.expr.clone().take(3).collect::<String>() == "og(" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Log))
+                } else if self.expr.clone().take(2).collect::<String>() == "n(" {
+                    self.expr.by_ref().take(1).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Ln))
                 } else {
                     None
                 }
             }
-            Some('m') => {
-                if self.expr.clone().take(3).collect::<String>() == "in(" {
+            Some('m') => match self.expr.clone().take(3).collect::<String>().as_str() {
+                "in(" => {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Min))
-                } else if self.expr.clone().take(3).collect::<String>() == "ax(" {
+                }
+                "ax(" => {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Max))
-                } else if self.expr.clone().take(3).collect::<String>() == "od(" {
+                }
+                "od(" => {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Mod))
-                } else {
-                    None
                 }
-            }
+                _ => None,
+            },
             Some('p') => {
                 if self.expr.clone().take(3).collect::<String>() == "ow(" {
                     self.expr.by_ref().take(2).for_each(drop);
@@ -141,23 +142,29 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('s') => {
-                if self.expr.clone().take(4).collect::<String>() == "qrt(" {
-                    self.expr.by_ref().take(3).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Sqrt))
-                } else if self.expr.clone().take(4).collect::<String>() == "ign(" {
-                    self.expr.by_ref().take(3).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Sign))
-                } else if self.expr.clone().take(6).collect::<String>() == "ignum(" {
+            Some('s') => match self.expr.clone().take(6).collect::<String>().as_str() {
+                "ignum(" => {
                     self.expr.by_ref().take(5).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Sign))
-                } else if self.expr.clone().take(3).collect::<String>() == "gn(" {
-                    self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Sign))
-                } else {
-                    None
                 }
-            }
+                _ => match self.expr.clone().take(4).collect::<String>().as_str() {
+                    "qrt(" => {
+                        self.expr.by_ref().take(3).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Sqrt))
+                    }
+                    "ign(" => {
+                        self.expr.by_ref().take(3).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Sign))
+                    }
+                    _ => match self.expr.clone().take(3).collect::<String>().as_str() {
+                        "gn(" => {
+                            self.expr.by_ref().take(2).for_each(drop);
+                            Some(Token::ExplicitFunction(NativeFunction::Sign))
+                        }
+                        _ => None,
+                    },
+                },
+            },
             None => Some(Token::Eof),
             Some(_) => None,
         }
