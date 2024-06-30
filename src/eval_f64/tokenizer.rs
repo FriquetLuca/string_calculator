@@ -192,6 +192,9 @@ impl<'a> Iterator for Tokenizer<'a> {
                 } else if self.expr.clone().take(2).collect::<String>() == "ad" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::RadToDeg)
+                } else if self.expr.clone().take(4).collect::<String>() == "oot(" {
+                    self.expr.by_ref().take(3).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Root))
                 } else {
                     None
                 }
@@ -526,6 +529,14 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Pow)
+        )
+    }
+    #[test]
+    fn test_root_function() {
+        let mut tokenizer = Tokenizer::new("root(.14159,2)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Root)
         )
     }
     #[test]

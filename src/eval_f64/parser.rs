@@ -191,6 +191,10 @@ impl<'a> Parser<'a> {
                         let args = self.function_static_arguments(2)?;
                         Node::Pow(Box::new(args[0].clone()), Box::new(args[1].clone()))
                     }
+                    NativeFunction::Root => {
+                        let args = self.function_static_arguments(2)?;
+                        Node::Root(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
                     NativeFunction::Log => {
                         let args = self.function_static_arguments(2)?;
                         Node::Log(Box::new(args[0].clone()), Box::new(args[1].clone()))

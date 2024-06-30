@@ -18,6 +18,7 @@ pub enum Node {
     Pow2(Box<Node>),
     Pow3(Box<Node>),
     Ln(Box<Node>),
+    Exp(Box<Node>),
     Exp2(Box<Node>),
     Sign(Box<Node>),
     Min(Vec<Node>),
@@ -68,6 +69,7 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
             Ok(before_sqr.ln() as i64)
         }
         Sign(sub_expr) => Ok(eval(*sub_expr)?.signum()),
+        Exp(sub_expr) => Ok((eval(*sub_expr)? as f64).exp() as i64),
         Exp2(sub_expr) => {
             let result = eval(*sub_expr)?;
             if result < 0 {

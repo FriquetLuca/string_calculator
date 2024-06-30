@@ -9,6 +9,10 @@ pub enum Node {
     Divide(Box<Node>, Box<Node>),
     Modulo(Box<Node>, Box<Node>),
     Caret(Box<Node>, Box<Node>),
+    Atan2(Box<Node>, Box<Node>),
+    Root(Box<Node>, Box<Node>),
+    Pow(Box<Node>, Box<Node>),
+    Log(Box<Node>, Box<Node>),
     Negative(Box<Node>),
     Factorial(Box<Node>),
     Abs(Box<Node>),
@@ -27,9 +31,7 @@ pub enum Node {
     Asin(Box<Node>),
     Acos(Box<Node>),
     Atan(Box<Node>),
-    Atan2(Box<Node>, Box<Node>),
     Sqrt(Box<Node>),
-    Pow(Box<Node>, Box<Node>),
     Pow2(Box<Node>),
     Pow3(Box<Node>),
     Ln(Box<Node>),
@@ -39,7 +41,6 @@ pub enum Node {
     Sign(Box<Node>),
     Min(Vec<Node>),
     Max(Vec<Node>),
-    Log(Box<Node>, Box<Node>),
     Number(f64),
 }
 
@@ -55,6 +56,7 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
         Negative(expr1) => Ok(-(eval(*expr1)?)),
         Caret(expr1, expr2) => Ok(eval(*expr1)?.powf(eval(*expr2)?)),
         Pow(expr1, expr2) => Ok(eval(*expr1)?.powf(eval(*expr2)?)),
+        Root(n_th_expr, x_expr) => Ok(eval(*x_expr)?.powf(1.0 / eval(*n_th_expr)?)),
         Factorial(sub_expr) => {
             let sub_result = eval(*sub_expr)?;
             if sub_result >= 0.0 {

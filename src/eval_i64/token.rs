@@ -5,6 +5,7 @@ pub enum NativeFunction {
     Pow,
     Sqrt,
     Root,
+    Exp,
     Exp2,
     Abs,
     Mod,

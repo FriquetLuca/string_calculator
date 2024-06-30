@@ -71,7 +71,10 @@ impl<'a> Iterator for Tokenizer<'a> {
                 }
             }
             Some('e') => {
-                if self.expr.clone().take(4).collect::<String>() == "xp2(" {
+                if self.expr.clone().take(3).collect::<String>() == "xp(" {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Exp))
+                } else if self.expr.clone().take(4).collect::<String>() == "xp2(" {
                     self.expr.by_ref().take(3).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Exp2))
                 } else {
@@ -269,6 +272,14 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Sqrt)
+        )
+    }
+    #[test]
+    fn test_exp_function() {
+        let mut tokenizer = Tokenizer::new("exp(14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Exp)
         )
     }
     #[test]

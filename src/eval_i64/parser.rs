@@ -122,6 +122,9 @@ impl<'a> Parser<'a> {
                         let args = self.function_static_arguments(2)?;
                         Node::Root(Box::new(args[0].clone()), Box::new(args[1].clone()))
                     }
+                    NativeFunction::Exp => {
+                        Node::Exp(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
                     NativeFunction::Exp2 => {
                         Node::Exp2(Box::new(self.function_static_arguments(1)?[0].clone()))
                     }
@@ -420,6 +423,12 @@ mod tests {
     fn test_sqrt_function() {
         let mut parser = Parser::new("sqrt(55)", None).unwrap();
         let expected = Sqrt(Box::new(Number(55)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_exp_function() {
+        let mut parser = Parser::new("exp(5)", None).unwrap();
+        let expected = Exp(Box::new(Number(5)));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
