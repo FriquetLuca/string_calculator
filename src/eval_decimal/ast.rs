@@ -51,11 +51,9 @@ pub fn eval(expr: Node) -> Result<Decimal, Box<dyn error::Error>> {
         Exp2(sub_expr) => Ok(Decimal::new(2, 0).powd(eval(*sub_expr)?)),
         Pow(expr1, expr2) => Ok(eval(*expr1)?.powd(eval(*expr2)?)),
         Log(expr1, expr2) => Ok(eval(*expr1)?.ln() / eval(*expr2)?.ln()),
-        Sqrt(sub_expr) => {
-            match eval(*sub_expr)?.sqrt() {
-                Some(result) => Ok(result),
-                None => Err("Unable to compute the square root of negative number".into()),
-            }
+        Sqrt(sub_expr) => match eval(*sub_expr)?.sqrt() {
+            Some(result) => Ok(result),
+            None => Err("Unable to compute the square root of negative number".into()),
         },
         Root(n_th_expr, x_expr) => Ok(eval(*x_expr)?.powd(Decimal::new(1, 0) / eval(*n_th_expr)?)),
         Min(args) => {
