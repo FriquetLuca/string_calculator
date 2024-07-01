@@ -2,7 +2,7 @@
 name = "string_calculator"
 description = "A string calculator to compute formulas inside strings."
 license = "MIT OR Apache-2.0"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2021"
 readme = "README.md"
 repository = "https://github.com/FriquetLuca/string_calculator"
@@ -11,6 +11,7 @@ authors = [ "Friquet Luca" ]
 [dependencies]
 statrs = "0.16"
 conv = "0.3"
+rust_decimal = "1.35"
 
 [lib]
 name = "string_calculator"
