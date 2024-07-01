@@ -63,7 +63,7 @@ Since there's a lot of things that could be simplified visually, here's the full
   Example:
   `5²`
   `= 25`
-1. Factorial (x!) (only in `eval_f64` and `eval_i64`)
+1. Factorial (x!)
   This operator handle the factorial of a real `x`.
   Example:
   `5!`
@@ -78,6 +78,13 @@ Since there's a lot of things that could be simplified visually, here's the full
   Example:
   `3 rad`
   `= 171.8873385393`
+
+## Constants
+
+1. Pi (π) (only in `eval_f64` and `eval_decimal`)
+  Pi is available as `pi` or `π`.
+1. E (e) (only in `eval_f64` and `eval_decimal`)
+  E is available as `e`.
 
 ## Function notation
 
@@ -100,10 +107,10 @@ Some function can be written purely using their original mathematical notation i
 1. Signum (sgn(x), sign(x), signum(x))
 1. Power (pow(x,y))
 1. Square root (sqrt(x))
-1. Root (root(x))
+1. Root (root(x, n))
 1. Modulo (mod(x,y))
 1. Exponential (exp(x), exp2(x))
-1. Logarithm (ln(x), log(x, b))
+1. Logarithm (ln(x), lb(x), log(x, b))
 1. Extremum (min(...X), max(...X))
 1. Avg (avg(...X))
 1. Median (median(...X), med(...X))
@@ -111,6 +118,8 @@ Some function can be written purely using their original mathematical notation i
 1. Floor (floor(x)) (only in `eval_f64` and `eval_decimal`)
 1. Ceil (ceil(x)) (only in `eval_f64` and `eval_decimal`)
 1. Round (round(x)) (only in `eval_f64` and `eval_decimal`)
+1. Lambert W (lambert_w(x), w(x)) (only in `eval_f64` and `eval_decimal`)
+1. Iterated Logarithm (ilog(x, b)) (only in `eval_f64` and `eval_decimal`)
 1. Sin (sin(θ)) (only in `eval_f64`)
 1. Asin (asin(x)) (only in `eval_f64`)
 1. cos (cos(θ)) (only in `eval_f64`)
@@ -124,7 +133,8 @@ Some function can be written purely using their original mathematical notation i
 1. Tanh (tanh(θ)) (only in `eval_f64`)
 1. Atanh (atanh(x), artanh(x)) (only in `eval_f64`)
 1. Atan 2 (atan2(y, x)) (only in `eval_f64`)
-
+1. GCD (gcd(...X)) (only in `eval_i64`)
+1. LCM (lcm(...X)) (only in `eval_i64`)
 
 ## Placeholder Getter
 

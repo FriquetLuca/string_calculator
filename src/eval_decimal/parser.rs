@@ -187,6 +187,12 @@ impl<'a> Parser<'a> {
                     NativeFunction::Ln => {
                         Node::Ln(Box::new(self.function_static_arguments(1)?[0].clone()))
                     }
+                    NativeFunction::Lb => {
+                        Node::Lb(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
+                    NativeFunction::LambertW => {
+                        Node::LambertW(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
                     NativeFunction::Pow => {
                         let args = self.function_static_arguments(2)?;
                         Node::Pow(Box::new(args[0].clone()), Box::new(args[1].clone()))
@@ -198,6 +204,10 @@ impl<'a> Parser<'a> {
                     NativeFunction::Log => {
                         let args = self.function_static_arguments(2)?;
                         Node::Log(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
+                    NativeFunction::ILog => {
+                        let args = self.function_static_arguments(2)?;
+                        Node::ILog(Box::new(args[0].clone()), Box::new(args[1].clone()))
                     }
                 };
                 self.implicit_multiply(current_function)
@@ -305,6 +315,10 @@ impl<'a> Parser<'a> {
                 let right_expr = self.generate_ast(OperatorCategory::Power)?;
                 Ok(Node::Pow(Box::new(left_expr), Box::new(right_expr)))
             }
+            Token::ExclamationMark => {
+                self.get_next_token()?;
+                self.implicit_multiply(Node::Factorial(Box::new(left_expr)))
+            }
             Token::Superscript(script) => {
                 self.get_next_token()?;
                 Ok(Node::Pow(
@@ -382,6 +396,12 @@ mod tests {
     fn test_negative() {
         let mut parser = Parser::new("-1", None).unwrap();
         let expected = Negative(Box::new(Number(Decimal::new(1, 0))));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_exclamation_mark() {
+        let mut parser = Parser::new("1!", None).unwrap();
+        let expected = Factorial(Box::new(Number(Decimal::new(1, 0))));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -644,6 +664,21 @@ mod tests {
     fn test_ln_function() {
         let mut parser = Parser::new("ln(5.25)", None).unwrap();
         let expected = Ln(Box::new(Number(Decimal::new(525, 2))));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_ilog_function() {
+        let mut parser = Parser::new("ilog(.14159,e)", None).unwrap();
+        let expected = ILog(
+            Box::new(Number(Decimal::new(14159, 5))),
+            Box::new(Number(Decimal::E)),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_lambert_w_function() {
+        let mut parser = Parser::new("w(5.25)", None).unwrap();
+        let expected = LambertW(Box::new(Number(Decimal::new(525, 2))));
         assert_eq!(parser.parse().unwrap(), expected);
     }
 }

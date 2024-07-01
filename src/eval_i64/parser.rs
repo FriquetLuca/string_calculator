@@ -134,6 +134,9 @@ impl<'a> Parser<'a> {
                     NativeFunction::Ln => {
                         Node::Ln(Box::new(self.function_static_arguments(1)?[0].clone()))
                     }
+                    NativeFunction::Lb => {
+                        Node::Lb(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
                     NativeFunction::Sign => {
                         Node::Sign(Box::new(self.function_static_arguments(1)?[0].clone()))
                     }
@@ -148,6 +151,24 @@ impl<'a> Parser<'a> {
                     NativeFunction::Mod => {
                         let args = self.function_static_arguments(2)?;
                         Node::Modulo(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
+                    NativeFunction::Gcd => {
+                        let args = self.function_arguments()?;
+                        if args.is_empty() {
+                            return Err(ParseError::UnableToParse(
+                                "There's no arguments in the gcd function".to_string(),
+                            ));
+                        }
+                        Node::Gcd(Arc::new(args))
+                    }
+                    NativeFunction::Lcm => {
+                        let args = self.function_arguments()?;
+                        if args.is_empty() {
+                            return Err(ParseError::UnableToParse(
+                                "There's no arguments in the gcd function".to_string(),
+                            ));
+                        }
+                        Node::Lcm(Arc::new(args))
                     }
                     NativeFunction::Min => {
                         let args = self.function_arguments()?;
@@ -480,6 +501,30 @@ mod tests {
     fn test_avg_function2() {
         let mut parser = Parser::new("avg(2,3,5)", None).unwrap();
         let expected = Avg(Arc::new(vec![Number(2), Number(3), Number(5)]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_gcd_function() {
+        let mut parser = Parser::new("gcd(3)", None).unwrap();
+        let expected = Gcd(Arc::new(vec![Number(3)]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_gcd_function2() {
+        let mut parser = Parser::new("gcd(2,3,5)", None).unwrap();
+        let expected = Gcd(Arc::new(vec![Number(2), Number(3), Number(5)]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_lcm_function() {
+        let mut parser = Parser::new("lcm(3)", None).unwrap();
+        let expected = Lcm(Arc::new(vec![Number(3)]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_lcm_function2() {
+        let mut parser = Parser::new("lcm(2,3,5)", None).unwrap();
+        let expected = Lcm(Arc::new(vec![Number(2), Number(3), Number(5)]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]

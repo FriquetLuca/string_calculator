@@ -9,7 +9,10 @@ pub enum NativeFunction {
     Ceil,
     Round,
     Ln,
+    Lb,
+    LambertW,
     Log,
+    ILog,
     Pow,
     Sqrt,
     Root,
@@ -27,6 +30,7 @@ pub enum NativeFunction {
 pub enum Token {
     E,
     Pi,
+    ExclamationMark,
     Caret,
     Add,
     Subtract,
@@ -54,7 +58,7 @@ impl Token {
             Add | Subtract => OperatorCategory::Additive,
             Multiply | Divide | Modulo => OperatorCategory::Multiplicative,
             Caret | Superscript(_) => OperatorCategory::Power,
-            ExplicitFunction(_) => OperatorCategory::Functional,
+            ExclamationMark | ExplicitFunction(_) => OperatorCategory::Functional,
             _ => OperatorCategory::DefaultZero,
         }
     }

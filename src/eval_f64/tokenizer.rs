@@ -165,15 +165,33 @@ impl<'a> Iterator for Tokenizer<'a> {
                     Some(Token::E)
                 }
             }
-            Some('l') => {
-                if self.expr.clone().take(3).collect::<String>() == "og(" {
-                    self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Log))
-                } else if self.expr.clone().take(2).collect::<String>() == "n(" {
-                    self.expr.by_ref().take(1).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Ln))
+            Some('i') => {
+                if self.expr.clone().take(4).collect::<String>() == "log(" {
+                    self.expr.by_ref().take(3).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::ILog))
                 } else {
                     None
+                }
+            }
+            Some('l') => {
+                if self.expr.clone().take(9).collect::<String>() == "ambert_w(" {
+                    self.expr.by_ref().take(8).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::LambertW))
+                } else if self.expr.clone().take(3).collect::<String>() == "og(" {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Log))
+                } else {
+                    match self.expr.clone().take(2).collect::<String>().as_str() {
+                        "n(" => {
+                            self.expr.by_ref().take(1).for_each(drop);
+                            Some(Token::ExplicitFunction(NativeFunction::Ln))
+                        }
+                        "b(" => {
+                            self.expr.by_ref().take(1).for_each(drop);
+                            Some(Token::ExplicitFunction(NativeFunction::Lb))
+                        }
+                        _ => None,
+                    }
                 }
             }
             Some('m') => match self.expr.clone().take(6).collect::<String>().as_str() {
@@ -270,6 +288,13 @@ impl<'a> Iterator for Tokenizer<'a> {
                 } else if self.expr.clone().take(3).collect::<String>() == "an(" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Tan))
+                } else {
+                    None
+                }
+            }
+            Some('w') => {
+                if let Some('(') = self.expr.peek() {
+                    Some(Token::ExplicitFunction(NativeFunction::LambertW))
                 } else {
                     None
                 }
@@ -541,6 +566,14 @@ mod tests {
         )
     }
     #[test]
+    fn test_lb_function() {
+        let mut tokenizer = Tokenizer::new("lb(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Lb)
+        )
+    }
+    #[test]
     fn test_log_function() {
         let mut tokenizer = Tokenizer::new("log(.14159,2)");
         assert_eq!(
@@ -594,6 +627,30 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Exp2)
+        )
+    }
+    #[test]
+    fn test_ilog_function() {
+        let mut tokenizer = Tokenizer::new("ilog(.14159,e)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::ILog)
+        )
+    }
+    #[test]
+    fn test_lambert_w_function() {
+        let mut tokenizer = Tokenizer::new("w(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::LambertW)
+        )
+    }
+    #[test]
+    fn test_lambert_w_function2() {
+        let mut tokenizer = Tokenizer::new("lambert_w(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::LambertW)
         )
     }
     #[test]

@@ -175,6 +175,12 @@ impl<'a> Parser<'a> {
                     NativeFunction::Ln => {
                         Node::Ln(Box::new(self.function_static_arguments(1)?[0].clone()))
                     }
+                    NativeFunction::Lb => {
+                        Node::Lb(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
+                    NativeFunction::LambertW => {
+                        Node::LambertW(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
                     NativeFunction::Sign => {
                         Node::Sign(Box::new(self.function_static_arguments(1)?[0].clone()))
                     }
@@ -200,6 +206,10 @@ impl<'a> Parser<'a> {
                     NativeFunction::Log => {
                         let args = self.function_static_arguments(2)?;
                         Node::Log(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
+                    NativeFunction::ILog => {
+                        let args = self.function_static_arguments(2)?;
+                        Node::ILog(Box::new(args[0].clone()), Box::new(args[1].clone()))
                     }
                     NativeFunction::Min => {
                         let args = self.function_arguments()?;
@@ -543,6 +553,27 @@ mod tests {
     fn test_ln_function() {
         let mut parser = Parser::new("ln(5.25)", None).unwrap();
         let expected = Ln(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_lb_function() {
+        let mut parser = Parser::new("lb(5.25)", None).unwrap();
+        let expected = Lb(Box::new(Number(5.25)));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_ilog_function() {
+        let mut parser = Parser::new("ilog(.14159,e)", None).unwrap();
+        let expected = ILog(
+            Box::new(Number(0.14159)),
+            Box::new(Number(std::f64::consts::E)),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_lambert_w_function() {
+        let mut parser = Parser::new("w(5.25)", None).unwrap();
+        let expected = LambertW(Box::new(Number(5.25)));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]

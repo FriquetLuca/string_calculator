@@ -89,17 +89,35 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('l') => {
-                if self.expr.clone().take(3).collect::<String>() == "og(" {
+            Some('g') => {
+                if self.expr.clone().take(3).collect::<String>() == "cd(" {
                     self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Log))
-                } else if self.expr.clone().take(2).collect::<String>() == "n(" {
-                    self.expr.by_ref().take(1).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Ln))
+                    Some(Token::ExplicitFunction(NativeFunction::Gcd))
                 } else {
                     None
                 }
             }
+            Some('l') => match self.expr.clone().take(3).collect::<String>().as_str() {
+                "og(" => {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Log))
+                }
+                "cm(" => {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Lcm))
+                }
+                _ => match self.expr.clone().take(2).collect::<String>().as_str() {
+                    "n(" => {
+                        self.expr.by_ref().take(1).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Ln))
+                    }
+                    "b(" => {
+                        self.expr.by_ref().take(1).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Lb))
+                    }
+                    _ => None,
+                },
+            },
             Some('m') => match self.expr.clone().take(6).collect::<String>().as_str() {
                 "edian(" => {
                     self.expr.by_ref().take(5).for_each(drop);
@@ -385,6 +403,22 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Med)
+        )
+    }
+    #[test]
+    fn test_gcd_function() {
+        let mut tokenizer = Tokenizer::new("gcd(10,20)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Gcd)
+        )
+    }
+    #[test]
+    fn test_lcm_function() {
+        let mut tokenizer = Tokenizer::new("lcm(10,20)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Lcm)
         )
     }
 }
