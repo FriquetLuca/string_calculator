@@ -53,12 +53,12 @@ Since there's a lot of things that could be simplified visually, here's the full
   Example:
   `4 >> 2`
   `= 1`
-1. PowerOf (x^y) (only in `eval_f64` and `eval_i64`)
+1. PowerOf (x^y)
   This operator handle the power of `x` by `y`, `x` and `y` being both numbers.
   Example:
   `3^3`
   `= 27`
-1. Subscript support (x²) (only in `eval_f64` and `eval_i64`)
+1. Subscript support (x²)
   This operator handle the power of `x` by using the superscript notation (such as `²`) for integers, `x` being a number.
   Example:
   `5²`
@@ -98,12 +98,12 @@ Some function can be written purely using their original mathematical notation i
 
 1. Absolute value (abs(x))
 1. Signum (sgn(x), sign(x), signum(x))
-1. Power (pow(x,y)) (only in `eval_f64` and `eval_i64`)
-1. Square root (sqrt(x)) (only in `eval_f64` and `eval_i64`)
-1. Root (root(x)) (only in `eval_f64` and `eval_i64`)
+1. Power (pow(x,y))
+1. Square root (sqrt(x))
+1. Root (root(x))
 1. Modulo (mod(x,y))
-1. Exponential (exp(x), exp2(x)) (only in `eval_f64` and `eval_i64`)
-1. Logarithm (ln(x), log(x, b)) (only in `eval_f64` and `eval_i64`)
+1. Exponential (exp(x), exp2(x))
+1. Logarithm (ln(x), log(x, b))
 1. Extremum (min(...X), max(...X))
 1. Avg (avg(...X))
 1. Median (median(...X), med(...X))

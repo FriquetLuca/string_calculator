@@ -1,6 +1,6 @@
 use std::{error, sync::Arc};
 
-use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Node {
@@ -20,6 +20,13 @@ pub enum Node {
     Ceil(Box<Node>),
     Round(Box<Node>),
     Truncate(Box<Node>),
+    Sqrt(Box<Node>),
+    Root(Box<Node>, Box<Node>),
+    Ln(Box<Node>),
+    Exp(Box<Node>),
+    Exp2(Box<Node>),
+    Pow(Box<Node>, Box<Node>),
+    Log(Box<Node>, Box<Node>),
     Number(Decimal),
 }
 
@@ -38,17 +45,19 @@ pub fn eval(expr: Node) -> Result<Decimal, Box<dyn error::Error>> {
         Ceil(sub_expr) => Ok(eval(*sub_expr)?.ceil()),
         Round(sub_expr) => Ok(eval(*sub_expr)?.round()),
         Truncate(sub_expr) => Ok(eval(*sub_expr)?.trunc()),
-        Sign(sub_expr) => {
-            let value = eval(*sub_expr)?;
-            let sign = if value.is_zero() {
-                Decimal::ZERO
-            } else if value.is_sign_positive() {
-                Decimal::new(1, 0)
-            } else {
-                Decimal::new(-1, 0)
-            };
-            Ok(sign)
-        }
+        Sign(sub_expr) => Ok(eval(*sub_expr)?.signum()),
+        Ln(sub_expr) => Ok(eval(*sub_expr)?.ln()),
+        Exp(sub_expr) => Ok(eval(*sub_expr)?.exp()),
+        Exp2(sub_expr) => Ok(Decimal::new(2, 0).powd(eval(*sub_expr)?)),
+        Pow(expr1, expr2) => Ok(eval(*expr1)?.powd(eval(*expr2)?)),
+        Log(expr1, expr2) => Ok(eval(*expr1)?.ln() / eval(*expr2)?.ln()),
+        Sqrt(sub_expr) => {
+            match eval(*sub_expr)?.sqrt() {
+                Some(result) => Ok(result),
+                None => Err("Unable to compute the square root of negative number".into()),
+            }
+        },
+        Root(n_th_expr, x_expr) => Ok(eval(*x_expr)?.powd(Decimal::new(1, 0) / eval(*n_th_expr)?)),
         Min(args) => {
             if args.len() > 1 {
                 let mut result = Decimal::MAX;

@@ -8,6 +8,13 @@ pub enum NativeFunction {
     Floor,
     Ceil,
     Round,
+    Ln,
+    Log,
+    Pow,
+    Sqrt,
+    Root,
+    Exp,
+    Exp2,
     Mod,
     Sign,
     Min,
@@ -18,6 +25,9 @@ pub enum NativeFunction {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
+    E,
+    Pi,
+    Caret,
     Add,
     Subtract,
     Multiply,
@@ -31,6 +41,7 @@ pub enum Token {
     LeftCeiling,
     RightCeiling,
     ExplicitFunction(NativeFunction),
+    Superscript(Decimal),
     Num(Decimal),
     Ans,
     Eof,
@@ -42,6 +53,7 @@ impl Token {
         match *self {
             Add | Subtract => OperatorCategory::Additive,
             Multiply | Divide | Modulo => OperatorCategory::Multiplicative,
+            Caret | Superscript(_) => OperatorCategory::Power,
             ExplicitFunction(_) => OperatorCategory::Functional,
             _ => OperatorCategory::DefaultZero,
         }

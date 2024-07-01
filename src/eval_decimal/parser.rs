@@ -175,6 +175,30 @@ impl<'a> Parser<'a> {
                     NativeFunction::Truncate => {
                         Node::Truncate(Box::new(self.function_static_arguments(1)?[0].clone()))
                     }
+                    NativeFunction::Sqrt => {
+                        Node::Sqrt(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
+                    NativeFunction::Exp => {
+                        Node::Exp(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
+                    NativeFunction::Exp2 => {
+                        Node::Exp2(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
+                    NativeFunction::Ln => {
+                        Node::Ln(Box::new(self.function_static_arguments(1)?[0].clone()))
+                    }
+                    NativeFunction::Pow => {
+                        let args = self.function_static_arguments(2)?;
+                        Node::Pow(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
+                    NativeFunction::Root => {
+                        let args = self.function_static_arguments(2)?;
+                        Node::Root(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
+                    NativeFunction::Log => {
+                        let args = self.function_static_arguments(2)?;
+                        Node::Log(Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    }
                 };
                 self.implicit_multiply(current_function)
             }
@@ -191,6 +215,14 @@ impl<'a> Parser<'a> {
             Token::Num(i) => {
                 self.get_next_token()?;
                 self.implicit_multiply(Node::Number(i))
+            }
+            Token::Pi => {
+                self.get_next_token()?;
+                Ok(Node::Number(Decimal::PI))
+            }
+            Token::E => {
+                self.get_next_token()?;
+                Ok(Node::Number(Decimal::E))
             }
             Token::LeftParen => self.get_enclosed_elements_with_impl_mult(
                 OperatorCategory::DefaultZero,
@@ -268,6 +300,18 @@ impl<'a> Parser<'a> {
                 let right_expr = self.generate_ast(OperatorCategory::Multiplicative)?;
                 Ok(Node::Divide(Box::new(left_expr), Box::new(right_expr)))
             }
+            Token::Caret => {
+                self.get_next_token()?;
+                let right_expr = self.generate_ast(OperatorCategory::Power)?;
+                Ok(Node::Pow(Box::new(left_expr), Box::new(right_expr)))
+            }
+            Token::Superscript(script) => {
+                self.get_next_token()?;
+                Ok(Node::Pow(
+                    Box::new(left_expr),
+                    Box::new(Node::Number(script)),
+                ))
+            }
             Token::Modulo => {
                 self.get_next_token()?;
                 let right_expr = self.generate_ast(OperatorCategory::Multiplicative)?;
@@ -286,6 +330,18 @@ mod tests {
     use super::*;
     use crate::eval_decimal::ast::Node::*;
 
+    #[test]
+    fn test_pi() {
+        let mut parser = Parser::new("pi", None).unwrap();
+        let expected = Number(Decimal::PI);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_e() {
+        let mut parser = Parser::new("e", None).unwrap();
+        let expected = Number(Decimal::E);
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
     #[test]
     fn test_floor() {
         let mut parser = Parser::new("⌊5.25⌋", None).unwrap();
@@ -359,6 +415,15 @@ mod tests {
     fn test_divide() {
         let mut parser = Parser::new("1/2", None).unwrap();
         let expected = Divide(
+            Box::new(Number(Decimal::new(1, 0))),
+            Box::new(Number(Decimal::new(2, 0))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_caret() {
+        let mut parser = Parser::new("1^2", None).unwrap();
+        let expected = Pow(
             Box::new(Number(Decimal::new(1, 0))),
             Box::new(Number(Decimal::new(2, 0))),
         );
@@ -452,6 +517,78 @@ mod tests {
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
+    fn test_implicit_mul_prts_floor() {
+        let mut parser = Parser::new("(2)⌊3⌋", None).unwrap();
+        let expected = Multiply(
+            Box::new(Number(Decimal::new(2, 0))),
+            Box::new(Floor(Box::new(Number(Decimal::new(3, 0))))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_floor_prts() {
+        let mut parser = Parser::new("⌊2⌋(3)", None).unwrap();
+        let expected = Multiply(
+            Box::new(Floor(Box::new(Number(Decimal::new(2, 0))))),
+            Box::new(Number(Decimal::new(3, 0))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_prts_ceil() {
+        let mut parser = Parser::new("(2)⌈3⌉", None).unwrap();
+        let expected = Multiply(
+            Box::new(Number(Decimal::new(2, 0))),
+            Box::new(Ceil(Box::new(Number(Decimal::new(3, 0))))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_ceil_prts() {
+        let mut parser = Parser::new("⌈2⌉(3)", None).unwrap();
+        let expected = Multiply(
+            Box::new(Ceil(Box::new(Number(Decimal::new(2, 0))))),
+            Box::new(Number(Decimal::new(3, 0))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_floors() {
+        let mut parser = Parser::new("⌊2⌋⌊3⌋", None).unwrap();
+        let expected = Multiply(
+            Box::new(Floor(Box::new(Number(Decimal::new(2, 0))))),
+            Box::new(Floor(Box::new(Number(Decimal::new(3, 0))))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_ceils() {
+        let mut parser = Parser::new("⌈2⌉⌈3⌉", None).unwrap();
+        let expected = Multiply(
+            Box::new(Ceil(Box::new(Number(Decimal::new(2, 0))))),
+            Box::new(Ceil(Box::new(Number(Decimal::new(3, 0))))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_floor_ceil() {
+        let mut parser = Parser::new("⌊2⌋⌈3⌉", None).unwrap();
+        let expected = Multiply(
+            Box::new(Floor(Box::new(Number(Decimal::new(2, 0))))),
+            Box::new(Ceil(Box::new(Number(Decimal::new(3, 0))))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_implicit_mul_ceil_floor() {
+        let mut parser = Parser::new("⌈2⌉⌊3⌋", None).unwrap();
+        let expected = Multiply(
+            Box::new(Ceil(Box::new(Number(Decimal::new(2, 0))))),
+            Box::new(Floor(Box::new(Number(Decimal::new(3, 0))))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
     fn test_med_function() {
         let mut parser = Parser::new("med(3)", None).unwrap();
         let expected = Med(Arc::new(vec![Number(Decimal::new(3, 0))]));
@@ -465,6 +602,48 @@ mod tests {
             Number(Decimal::new(3, 0)),
             Number(Decimal::new(5, 0)),
         ]));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_pow_function() {
+        let mut parser = Parser::new("pow(3,2)", None).unwrap();
+        let expected = Pow(
+            Box::new(Number(Decimal::new(3, 0))),
+            Box::new(Number(Decimal::new(2, 0))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_log_function() {
+        let mut parser = Parser::new("log(3,2)", None).unwrap();
+        let expected = Log(
+            Box::new(Number(Decimal::new(3, 0))),
+            Box::new(Number(Decimal::new(2, 0))),
+        );
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_sqrt_function() {
+        let mut parser = Parser::new("sqrt(5.25)", None).unwrap();
+        let expected = Sqrt(Box::new(Number(Decimal::new(525, 2))));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_exp_function() {
+        let mut parser = Parser::new("exp(5.25)", None).unwrap();
+        let expected = Exp(Box::new(Number(Decimal::new(525, 2))));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_exp2_function() {
+        let mut parser = Parser::new("exp2(5.25)", None).unwrap();
+        let expected = Exp2(Box::new(Number(Decimal::new(525, 2))));
+        assert_eq!(parser.parse().unwrap(), expected);
+    }
+    #[test]
+    fn test_ln_function() {
+        let mut parser = Parser::new("ln(5.25)", None).unwrap();
+        let expected = Ln(Box::new(Number(Decimal::new(525, 2))));
         assert_eq!(parser.parse().unwrap(), expected);
     }
 }
