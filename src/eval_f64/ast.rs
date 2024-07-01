@@ -1,5 +1,4 @@
 use conv::ValueFrom;
-use statrs::function::gamma::gamma;
 use std::{error, sync::Arc};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -13,6 +12,7 @@ pub enum Node {
     Root(Box<Node>, Box<Node>),
     Pow(Box<Node>, Box<Node>),
     Log(Box<Node>, Box<Node>),
+    ILog(Box<Node>, Box<Node>),
     Negative(Box<Node>),
     Factorial(Box<Node>),
     Abs(Box<Node>),
@@ -33,15 +33,50 @@ pub enum Node {
     Atan(Box<Node>),
     Sqrt(Box<Node>),
     Ln(Box<Node>),
+    Lb(Box<Node>),
     Exp(Box<Node>),
     Exp2(Box<Node>),
     Truncate(Box<Node>),
     Sign(Box<Node>),
+    LambertW(Box<Node>),
     Min(Arc<Vec<Node>>),
     Max(Arc<Vec<Node>>),
     Avg(Arc<Vec<Node>>),
     Med(Arc<Vec<Node>>),
     Number(f64),
+}
+
+fn gamma(a: f64) -> f64 {
+    let mut s = 2.485_740_891_387_535_5e-5;
+    if a < 0.5 {
+        s += 1.051_423_785_817_219_7 / (1.0 - a);
+        s += -3.456_870_972_220_162_5 / (2.0 - a);
+        s += 4.512_277_094_668_948 / (3.0 - a);
+        s += -2.982_852_253_235_766_4 / (4.0 - a);
+        s += 1.056_397_115_771_267 / (5.0 - a);
+        s += -1.954_287_731_916_458_7e-1 / (6.0 - a);
+        s += 1.709_705_434_044_412e-2 / (7.0 - a);
+        s += -5.719_261_174_043_057e-4 / (8.0 - a);
+        s += 4.633_994_733_599_057e-6 / (9.0 - a);
+        s += -2.719_949_084_886_077_2e-9 / (10.0 - a);
+        std::f64::consts::PI
+            / ((std::f64::consts::PI * a).sin()
+                * s
+                * 1.860_382_734_205_265_7
+                * ((a - 10.400511) / std::f64::consts::E).powf(0.5 - a))
+    } else {
+        s += 1.051_423_785_817_219_7 / a;
+        s += -3.456_870_972_220_162_5 / (a + 1.0);
+        s += 4.512_277_094_668_948 / (a + 2.0);
+        s += -2.982_852_253_235_766_4 / (a + 3.0);
+        s += 1.056_397_115_771_267 / (a + 4.0);
+        s += -1.954_287_731_916_458_7e-1 / (a + 5.0);
+        s += 1.709_705_434_044_412e-2 / (a + 6.0);
+        s += -5.719_261_174_043_057e-4 / (a + 7.0);
+        s += 4.633_994_733_599_057e-6 / (a + 8.0);
+        s += -2.719_949_084_886_077_2e-9 / (a + 9.0);
+        s * 1.8603827342052657 * ((a + 10.400511) / std::f64::consts::E).powf(a - 0.5)
+    }
 }
 
 pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
@@ -74,6 +109,31 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
                 Ok(gamma(sub_result + 1.0))
             }
         }
+        LambertW(expr) => {
+            let sub_expr = eval(*expr)?;
+            let min_one: f64 = -1.0;
+            if sub_expr < -min_one.exp() {
+                return Err("The Lambert W function is not defined for {}.".into());
+            }
+            let iterations = (4).max((sub_expr.log10() / 3.0).ceil() as i32);
+            let mut w: f64 = 0.0;
+            for _ in 0..iterations {
+                let exp_w = w.exp();
+                w -= (w * exp_w - sub_expr)
+                    / (exp_w * (w + 1.0) - (w + 2.0) * (w * exp_w - sub_expr) / (2.0 * w + 2.0));
+            }
+            Ok(w)
+        }
+        ILog(expr1, expr2) => {
+            let mut n = eval(*expr1)?;
+            let b = eval(*expr2)?;
+            let mut x: f64 = 0.0;
+            while n > 1.0 {
+                x += 1.0;
+                n = (n.log10() / b.log10()).floor();
+            }
+            Ok(x)
+        }
         Abs(sub_expr) => Ok(eval(*sub_expr)?.abs()),
         Floor(sub_expr) => Ok(eval(*sub_expr)?.floor()),
         Ceil(sub_expr) => Ok(eval(*sub_expr)?.ceil()),
@@ -92,6 +152,7 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
         Artanh(sub_expr) => Ok(eval(*sub_expr)?.atanh()),
         Sqrt(sub_expr) => Ok(eval(*sub_expr)?.sqrt()),
         Ln(sub_expr) => Ok(eval(*sub_expr)?.ln()),
+        Lb(sub_expr) => Ok(eval(*sub_expr)?.log(2.0)),
         Truncate(sub_expr) => Ok(eval(*sub_expr)?.trunc()),
         Sign(sub_expr) => Ok(eval(*sub_expr)?.signum()),
         Exp(sub_expr) => Ok(eval(*sub_expr)?.exp()),

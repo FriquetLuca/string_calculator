@@ -33,6 +33,7 @@ impl<'a> Iterator for Tokenizer<'a> {
             Some('^') => Some(Token::Caret),
             Some('(') => Some(Token::LeftParen),
             Some(')') => Some(Token::RightParen),
+            Some('!') => Some(Token::ExclamationMark),
             Some(',') => Some(Token::Comma),
             Some('%') => Some(Token::Modulo),
             Some('π') => Some(Token::Pi),
@@ -40,6 +41,23 @@ impl<'a> Iterator for Tokenizer<'a> {
             Some('⌋') => Some(Token::RightFloor),
             Some('⌈') => Some(Token::LeftCeiling),
             Some('⌉') => Some(Token::RightCeiling),
+            Some('.') => {
+                let next_char = self.expr.peek()?;
+                if next_char.is_ascii_digit() {
+                    let mut number = "0".to_string();
+                    number.push(current_char?);
+                    while let Some(next_char) = self.expr.peek() {
+                        if next_char.is_ascii_digit() {
+                            number.push(self.expr.next()?);
+                        } else {
+                            break;
+                        }
+                    }
+                    Some(Token::Num(Decimal::from_str(&number).unwrap()))
+                } else {
+                    None
+                }
+            }
             Some('⁰'..='⁹') => Some(Token::Superscript(
                 Decimal::from_str(&deserialize_superscript_number(
                     &current_char?,
@@ -95,15 +113,33 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('l') => {
-                if self.expr.clone().take(3).collect::<String>() == "og(" {
-                    self.expr.by_ref().take(2).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Log))
-                } else if self.expr.clone().take(2).collect::<String>() == "n(" {
-                    self.expr.by_ref().take(1).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Ln))
+            Some('i') => {
+                if self.expr.clone().take(4).collect::<String>() == "log(" {
+                    self.expr.by_ref().take(3).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::ILog))
                 } else {
                     None
+                }
+            }
+            Some('l') => {
+                if self.expr.clone().take(9).collect::<String>() == "ambert_w(" {
+                    self.expr.by_ref().take(8).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::LambertW))
+                } else if self.expr.clone().take(3).collect::<String>() == "og(" {
+                    self.expr.by_ref().take(2).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Log))
+                } else {
+                    match self.expr.clone().take(2).collect::<String>().as_str() {
+                        "n(" => {
+                            self.expr.by_ref().take(1).for_each(drop);
+                            Some(Token::ExplicitFunction(NativeFunction::Ln))
+                        }
+                        "b(" => {
+                            self.expr.by_ref().take(1).for_each(drop);
+                            Some(Token::ExplicitFunction(NativeFunction::Lb))
+                        }
+                        _ => None,
+                    }
                 }
             }
             Some('m') => match self.expr.clone().take(6).collect::<String>().as_str() {
@@ -187,6 +223,13 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
+            Some('w') => {
+                if let Some('(') = self.expr.peek() {
+                    Some(Token::ExplicitFunction(NativeFunction::LambertW))
+                } else {
+                    None
+                }
+            }
             None => Some(Token::Eof),
             Some(_) => None,
         }
@@ -259,6 +302,11 @@ mod tests {
     fn test_ans_operator() {
         let mut tokenizer = Tokenizer::new("@");
         assert_eq!(tokenizer.next().unwrap(), Token::Ans)
+    }
+    #[test]
+    fn test_exclamation_mark_operator() {
+        let mut tokenizer = Tokenizer::new("!");
+        assert_eq!(tokenizer.next().unwrap(), Token::ExclamationMark)
     }
     #[test]
     fn test_comma_operator() {
@@ -424,6 +472,14 @@ mod tests {
         )
     }
     #[test]
+    fn test_lb_function() {
+        let mut tokenizer = Tokenizer::new("lb(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::Lb)
+        )
+    }
+    #[test]
     fn test_log_function() {
         let mut tokenizer = Tokenizer::new("log(.14159,2)");
         assert_eq!(
@@ -469,6 +525,30 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Exp2)
+        )
+    }
+    #[test]
+    fn test_ilog_function() {
+        let mut tokenizer = Tokenizer::new("ilog(.14159,e)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::ILog)
+        )
+    }
+    #[test]
+    fn test_lambert_w_function() {
+        let mut tokenizer = Tokenizer::new("w(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::LambertW)
+        )
+    }
+    #[test]
+    fn test_lambert_w_function2() {
+        let mut tokenizer = Tokenizer::new("lambert_w(.14159)");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::ExplicitFunction(NativeFunction::LambertW)
         )
     }
 }

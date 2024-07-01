@@ -11,12 +11,15 @@ pub enum Node {
     Multiply(Box<Node>, Box<Node>),
     Divide(Box<Node>, Box<Node>),
     Modulo(Box<Node>, Box<Node>),
+    Pow(Box<Node>, Box<Node>),
+    Root(Box<Node>, Box<Node>),
+    Log(Box<Node>, Box<Node>),
     Negative(Box<Node>),
     Factorial(Box<Node>),
     Abs(Box<Node>),
     Sqrt(Box<Node>),
-    Pow(Box<Node>, Box<Node>),
     Ln(Box<Node>),
+    Lb(Box<Node>),
     Exp(Box<Node>),
     Exp2(Box<Node>),
     Sign(Box<Node>),
@@ -24,9 +27,27 @@ pub enum Node {
     Max(Arc<Vec<Node>>),
     Avg(Arc<Vec<Node>>),
     Med(Arc<Vec<Node>>),
-    Root(Box<Node>, Box<Node>),
-    Log(Box<Node>, Box<Node>),
+    Gcd(Arc<Vec<Node>>),
+    Lcm(Arc<Vec<Node>>),
     Number(i64),
+}
+
+fn gcd(expr1: i64, expr2: i64) -> i64 {
+    let mut a = expr1;
+    let mut b = expr2;
+    while b != 0 {
+        let remainder = a % b;
+        a = expr2;
+        b = remainder;
+    }
+    a.abs()
+}
+
+fn lcm(expr1: i64, expr2: i64) -> i64 {
+    if expr1 == 0 || expr2 == 0 {
+        return 0;
+    }
+    (expr1 / gcd(expr1, expr2) * expr2).abs()
 }
 
 pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
@@ -70,6 +91,10 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
             let before_sqr = eval(*sub_expr)? as f64;
             Ok(before_sqr.ln() as i64)
         }
+        Lb(sub_expr) => {
+            let before_sqr = eval(*sub_expr)? as f64;
+            Ok(before_sqr.log(2.0) as i64)
+        }
         Sign(sub_expr) => Ok(eval(*sub_expr)?.signum()),
         Exp(sub_expr) => Ok((eval(*sub_expr)? as f64).exp() as i64),
         Exp2(sub_expr) => {
@@ -84,6 +109,41 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
             let eval_1 = eval(*expr1)? as f64;
             let eval_2 = eval(*expr2)? as f64;
             Ok(eval_1.log(eval_2) as i64)
+        }
+        Gcd(args) => {
+            // Ok(gcd(eval(*expr1)?, eval(*expr2)?))
+            if args.len() > 1 {
+                let mut result: Option<i64> = None;
+                for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
+                    let right_art = eval(arg)?;
+                    result = result
+                        .map(|left_arg| Some(gcd(left_arg, right_art)))
+                        .unwrap_or(Some(right_art));
+                }
+                Ok(result.unwrap())
+            } else {
+                match args.first() {
+                    Some(arg) => Ok(eval((*arg).clone())?),
+                    None => Ok(0),
+                }
+            }
+        }
+        Lcm(args) => {
+            if args.len() > 1 {
+                let mut result: Option<i64> = None;
+                for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
+                    let right_art = eval(arg)?;
+                    result = result
+                        .map(|left_arg| Some(lcm(left_arg, right_art)))
+                        .unwrap_or(Some(right_art));
+                }
+                Ok(result.unwrap())
+            } else {
+                match args.first() {
+                    Some(arg) => Ok(eval((*arg).clone())?),
+                    None => Ok(0),
+                }
+            }
         }
         Min(args) => {
             if args.len() > 1 {

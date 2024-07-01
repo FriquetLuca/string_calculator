@@ -5,10 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.1] - 2024-07-01
+## [0.3.1] - 2024-07-02
 
+### Improvement
+
+Update `README` in accordance to all missing functions added in `eval_decimal` and the `root` function argument definition has been also corrected.
+Patch the parsing of numbers in the format `.XXXX` for decimals.
+
+### Removed
+
+Remove `statrs` dependency.
+
+### New features
+
+Custom implementation of gamma function.
 Implement all the missing functions (except for the trigonometric ones) of `eval_decimal`.
-Update `README` in accordance to all missing functions added in `eval_decimal`.
+Add `lb` - binary lobarithm -.
+Add `gcd` and `lcm` to `eval_i64`.
+Add `w` - lambert w - and `ilog` - iterated logarithm - to `eval_f64` and `eval_decimal`.
 
 ## [0.3.0] - 2024-07-01
 

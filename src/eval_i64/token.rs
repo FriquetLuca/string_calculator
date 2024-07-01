@@ -2,7 +2,10 @@ use crate::utils::OperatorCategory;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum NativeFunction {
+    Gcd,
+    Lcm,
     Ln,
+    Lb,
     Log,
     Pow,
     Sqrt,
