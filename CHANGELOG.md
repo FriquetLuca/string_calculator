@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2024-07-01
+
+Implement all the missing functions (except for the trigonometric ones) of `eval_decimal`.
+Update `README` in accordance to all missing functions added in `eval_decimal`.
+
 ## [0.3.0] - 2024-07-01
 
 Add `eval_decimal`.
