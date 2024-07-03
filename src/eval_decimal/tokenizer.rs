@@ -58,7 +58,70 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('⁰'..='⁹') => Some(Token::Superscript(
+            Some('⁰') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('¹') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('²') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('³') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('⁴') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('⁵') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('⁶') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('⁷') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('⁸') => Some(Token::Superscript(
+                Decimal::from_str(&deserialize_superscript_number(
+                    &current_char?,
+                    &mut self.expr,
+                ))
+                .unwrap(),
+            )),
+            Some('⁹') => Some(Token::Superscript(
                 Decimal::from_str(&deserialize_superscript_number(
                     &current_char?,
                     &mut self.expr,

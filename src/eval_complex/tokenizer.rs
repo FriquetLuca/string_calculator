@@ -1,3 +1,5 @@
+use num_complex::Complex;
+
 use super::token::{NativeFunction, Token};
 use crate::utils::deserialize_superscript_number;
 use std::iter::Peekable;
@@ -30,14 +32,8 @@ impl<'a> Iterator for Tokenizer<'a> {
             Some('^') => Some(Token::Caret),
             Some('(') => Some(Token::LeftParen),
             Some(')') => Some(Token::RightParen),
-            Some('!') => Some(Token::ExclamationMark),
             Some(',') => Some(Token::Comma),
-            Some('%') => Some(Token::Modulo),
             Some('π') => Some(Token::Pi),
-            Some('⌊') => Some(Token::LeftFloor),
-            Some('⌋') => Some(Token::RightFloor),
-            Some('⌈') => Some(Token::LeftCeiling),
-            Some('⌉') => Some(Token::RightCeiling),
             Some('°') => Some(Token::DegToRad),
             Some('.') => {
                 let next_char = self.expr.peek()?;
@@ -51,61 +47,82 @@ impl<'a> Iterator for Tokenizer<'a> {
                             break;
                         }
                     }
-                    Some(Token::Num(number.parse::<f64>().unwrap()))
+                    if let Some('i') = self.expr.peek() {
+                        self.expr.next()?;
+                        Some(Token::Num(Complex::new(
+                            0.0,
+                            number.parse::<f64>().unwrap(),
+                        )))
+                    } else {
+                        Some(Token::Num(Complex::new(
+                            number.parse::<f64>().unwrap(),
+                            0.0,
+                        )))
+                    }
                 } else {
                     None
                 }
             }
-            Some('⁰') => Some(Token::Superscript(
+            Some('⁰') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('¹') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('¹') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('²') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('²') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('³') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('³') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('⁴') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('⁴') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('⁵') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('⁵') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('⁶') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('⁶') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('⁷') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('⁷') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('⁸') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('⁸') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
-            Some('⁹') => Some(Token::Superscript(
+                0.0,
+            ))),
+            Some('⁹') => Some(Token::Superscript(Complex::new(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<f64>()
                     .unwrap(),
-            )),
+                0.0,
+            ))),
             Some('0'..='9') => {
                 let mut number = current_char?.to_string();
                 while let Some(next_char) = self.expr.peek() {
@@ -115,7 +132,18 @@ impl<'a> Iterator for Tokenizer<'a> {
                         break;
                     }
                 }
-                Some(Token::Num(number.parse::<f64>().unwrap()))
+                if let Some('i') = self.expr.peek() {
+                    self.expr.next()?;
+                    Some(Token::Num(Complex::new(
+                        0.0,
+                        number.parse::<f64>().unwrap(),
+                    )))
+                } else {
+                    Some(Token::Num(Complex::new(
+                        number.parse::<f64>().unwrap(),
+                        0.0,
+                    )))
+                }
             }
             Some('a') => match self.expr.clone().take(6).collect::<String>().as_str() {
                 "rsinh(" => {
@@ -131,10 +159,6 @@ impl<'a> Iterator for Tokenizer<'a> {
                     Some(Token::ExplicitFunction(NativeFunction::Artanh))
                 }
                 _ => match self.expr.clone().take(5).collect::<String>().as_str() {
-                    "tan2(" => {
-                        self.expr.by_ref().take(4).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Atan2))
-                    }
                     "sinh(" => {
                         self.expr.by_ref().take(4).for_each(drop);
                         Some(Token::ExplicitFunction(NativeFunction::Arsinh))
@@ -165,20 +189,12 @@ impl<'a> Iterator for Tokenizer<'a> {
                                 self.expr.by_ref().take(2).for_each(drop);
                                 Some(Token::ExplicitFunction(NativeFunction::Abs))
                             }
-                            "vg(" => {
-                                self.expr.by_ref().take(2).for_each(drop);
-                                Some(Token::ExplicitFunction(NativeFunction::Avg))
-                            }
                             _ => None,
                         },
                     },
                 },
             },
             Some('c') => match self.expr.clone().take(4).collect::<String>().as_str() {
-                "eil(" => {
-                    self.expr.by_ref().take(3).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Ceil))
-                }
                 "osh(" => {
                     self.expr.by_ref().take(3).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Cosh))
@@ -191,14 +207,6 @@ impl<'a> Iterator for Tokenizer<'a> {
                     _ => None,
                 },
             },
-            Some('f') => {
-                if self.expr.clone().take(5).collect::<String>() == "loor(" {
-                    self.expr.by_ref().take(4).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Floor))
-                } else {
-                    None
-                }
-            }
             Some('e') => {
                 if self.expr.clone().take(4).collect::<String>() == "xp2(" {
                     self.expr.by_ref().take(3).for_each(drop);
@@ -210,19 +218,9 @@ impl<'a> Iterator for Tokenizer<'a> {
                     Some(Token::E)
                 }
             }
-            Some('i') => {
-                if self.expr.clone().take(4).collect::<String>() == "log(" {
-                    self.expr.by_ref().take(3).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::ILog))
-                } else {
-                    None
-                }
-            }
+            Some('i') => Some(Token::Num(Complex::new(0.0, 1.0))),
             Some('l') => {
-                if self.expr.clone().take(9).collect::<String>() == "ambert_w(" {
-                    self.expr.by_ref().take(8).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::LambertW))
-                } else if self.expr.clone().take(3).collect::<String>() == "og(" {
+                if self.expr.clone().take(3).collect::<String>() == "og(" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Log))
                 } else {
@@ -239,31 +237,6 @@ impl<'a> Iterator for Tokenizer<'a> {
                     }
                 }
             }
-            Some('m') => match self.expr.clone().take(6).collect::<String>().as_str() {
-                "edian(" => {
-                    self.expr.by_ref().take(5).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Med))
-                }
-                _ => match self.expr.clone().take(3).collect::<String>().as_str() {
-                    "in(" => {
-                        self.expr.by_ref().take(2).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Min))
-                    }
-                    "ax(" => {
-                        self.expr.by_ref().take(2).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Max))
-                    }
-                    "od(" => {
-                        self.expr.by_ref().take(2).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Mod))
-                    }
-                    "ed(" => {
-                        self.expr.by_ref().take(2).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Med))
-                    }
-                    _ => None,
-                },
-            },
             Some('p') => {
                 if self.expr.clone().take(3).collect::<String>() == "ow(" {
                     self.expr.by_ref().take(2).for_each(drop);
@@ -276,10 +249,7 @@ impl<'a> Iterator for Tokenizer<'a> {
                 }
             }
             Some('r') => {
-                if self.expr.clone().take(5).collect::<String>() == "ound(" {
-                    self.expr.by_ref().take(4).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Round))
-                } else if self.expr.clone().take(4).collect::<String>() == "oot(" {
+                if self.expr.clone().take(4).collect::<String>() == "oot(" {
                     self.expr.by_ref().take(3).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Root))
                 } else if self.expr.clone().take(2).collect::<String>() == "ad" {
@@ -289,57 +259,30 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('s') => match self.expr.clone().take(6).collect::<String>().as_str() {
-                "ignum(" => {
-                    self.expr.by_ref().take(5).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Sign))
+            Some('s') => match self.expr.clone().take(4).collect::<String>().as_str() {
+                "inh(" => {
+                    self.expr.by_ref().take(3).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Sinh))
                 }
-                _ => match self.expr.clone().take(4).collect::<String>().as_str() {
-                    "inh(" => {
-                        self.expr.by_ref().take(3).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Sinh))
+                "qrt(" => {
+                    self.expr.by_ref().take(3).for_each(drop);
+                    Some(Token::ExplicitFunction(NativeFunction::Sqrt))
+                }
+                _ => match self.expr.clone().take(3).collect::<String>().as_str() {
+                    "in(" => {
+                        self.expr.by_ref().take(2).for_each(drop);
+                        Some(Token::ExplicitFunction(NativeFunction::Sin))
                     }
-                    "qrt(" => {
-                        self.expr.by_ref().take(3).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Sqrt))
-                    }
-                    "ign(" => {
-                        self.expr.by_ref().take(3).for_each(drop);
-                        Some(Token::ExplicitFunction(NativeFunction::Sign))
-                    }
-                    _ => match self.expr.clone().take(3).collect::<String>().as_str() {
-                        "in(" => {
-                            self.expr.by_ref().take(2).for_each(drop);
-                            Some(Token::ExplicitFunction(NativeFunction::Sin))
-                        }
-                        "gn(" => {
-                            self.expr.by_ref().take(2).for_each(drop);
-                            Some(Token::ExplicitFunction(NativeFunction::Sign))
-                        }
-                        _ => None,
-                    },
+                    _ => None,
                 },
             },
             Some('t') => {
-                if self.expr.clone().take(8).collect::<String>() == "runcate(" {
-                    self.expr.by_ref().take(7).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Truncate))
-                } else if self.expr.clone().take(5).collect::<String>() == "runc(" {
-                    self.expr.by_ref().take(4).for_each(drop);
-                    Some(Token::ExplicitFunction(NativeFunction::Truncate))
-                } else if self.expr.clone().take(4).collect::<String>() == "anh(" {
+                if self.expr.clone().take(4).collect::<String>() == "anh(" {
                     self.expr.by_ref().take(3).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Tanh))
                 } else if self.expr.clone().take(3).collect::<String>() == "an(" {
                     self.expr.by_ref().take(2).for_each(drop);
                     Some(Token::ExplicitFunction(NativeFunction::Tan))
-                } else {
-                    None
-                }
-            }
-            Some('w') => {
-                if let Some('(') = self.expr.peek() {
-                    Some(Token::ExplicitFunction(NativeFunction::LambertW))
                 } else {
                     None
                 }
@@ -357,22 +300,66 @@ mod tests {
     #[test]
     fn test_integer_number() {
         let mut tokenizer = Tokenizer::new("34");
-        assert_eq!(tokenizer.next().unwrap(), Token::Num(34.0))
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Num(Complex::new(34.0, 0.0))
+        )
     }
     #[test]
     fn test_superscript_number() {
         let mut tokenizer = Tokenizer::new("⁰¹²³⁴⁵⁶⁷⁸⁹");
-        assert_eq!(tokenizer.next().unwrap(), Token::Superscript(123456789.0))
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Superscript(Complex::new(123456789.0, 0.0))
+        )
     }
     #[test]
     fn test_decimal_number() {
         let mut tokenizer = Tokenizer::new("34.5");
-        assert_eq!(tokenizer.next().unwrap(), Token::Num(34.5))
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Num(Complex::new(34.5, 0.0))
+        )
+    }
+    #[test]
+    fn test_complex_number() {
+        let mut tokenizer = Tokenizer::new("3.2i");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Num(Complex::new(0.0, 3.2))
+        )
+    }
+    #[test]
+    fn test_complex_number2() {
+        let mut tokenizer = Tokenizer::new("32i");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Num(Complex::new(0.0, 32.0))
+        )
+    }
+    #[test]
+    fn test_complex_number3() {
+        let mut tokenizer = Tokenizer::new(".32i");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Num(Complex::new(0.0, 0.32))
+        )
+    }
+    #[test]
+    fn test_imaginary_unit() {
+        let mut tokenizer = Tokenizer::new("i");
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Num(Complex::new(0.0, 1.0))
+        )
     }
     #[test]
     fn test_decimal_number_omit_zero() {
         let mut tokenizer = Tokenizer::new(".5");
-        assert_eq!(tokenizer.next().unwrap(), Token::Num(0.5))
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Num(Complex::new(0.5, 0.0))
+        )
     }
     #[test]
     fn test_e_const() {
@@ -398,26 +385,6 @@ mod tests {
     fn test_right_parenthesis_operator() {
         let mut tokenizer = Tokenizer::new(")");
         assert_eq!(tokenizer.next().unwrap(), Token::RightParen)
-    }
-    #[test]
-    fn test_left_floor_operator() {
-        let mut tokenizer = Tokenizer::new("⌊");
-        assert_eq!(tokenizer.next().unwrap(), Token::LeftFloor)
-    }
-    #[test]
-    fn test_right_floor_operator() {
-        let mut tokenizer = Tokenizer::new("⌋");
-        assert_eq!(tokenizer.next().unwrap(), Token::RightFloor)
-    }
-    #[test]
-    fn test_left_ceil_operator() {
-        let mut tokenizer = Tokenizer::new("⌈");
-        assert_eq!(tokenizer.next().unwrap(), Token::LeftCeiling)
-    }
-    #[test]
-    fn test_right_ceil_operator() {
-        let mut tokenizer = Tokenizer::new("⌉");
-        assert_eq!(tokenizer.next().unwrap(), Token::RightCeiling)
     }
     #[test]
     fn test_ans_operator() {
@@ -460,19 +427,9 @@ mod tests {
         assert_eq!(tokenizer.next().unwrap(), Token::Divide)
     }
     #[test]
-    fn test_modulo_operator() {
-        let mut tokenizer = Tokenizer::new("%");
-        assert_eq!(tokenizer.next().unwrap(), Token::Modulo)
-    }
-    #[test]
     fn test_caret_operator() {
         let mut tokenizer = Tokenizer::new("^");
         assert_eq!(tokenizer.next().unwrap(), Token::Caret)
-    }
-    #[test]
-    fn test_exclamation_mark_operator() {
-        let mut tokenizer = Tokenizer::new("!");
-        assert_eq!(tokenizer.next().unwrap(), Token::ExclamationMark)
     }
     #[test]
     fn test_sin_function() {
@@ -544,14 +501,6 @@ mod tests {
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Atan)
-        )
-    }
-    #[test]
-    fn test_atan2_function() {
-        let mut tokenizer = Tokenizer::new("atan2(.14159, 2.1415)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Atan2)
         )
     }
     #[test]
@@ -643,14 +592,6 @@ mod tests {
         )
     }
     #[test]
-    fn test_mod_function() {
-        let mut tokenizer = Tokenizer::new("mod(2.14159,2)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Mod)
-        )
-    }
-    #[test]
     fn test_sqrt_function() {
         let mut tokenizer = Tokenizer::new("sqrt(.14159)");
         assert_eq!(
@@ -675,139 +616,11 @@ mod tests {
         )
     }
     #[test]
-    fn test_ilog_function() {
-        let mut tokenizer = Tokenizer::new("ilog(.14159,e)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::ILog)
-        )
-    }
-    #[test]
-    fn test_lambert_w_function() {
-        let mut tokenizer = Tokenizer::new("w(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::LambertW)
-        )
-    }
-    #[test]
-    fn test_lambert_w_function2() {
-        let mut tokenizer = Tokenizer::new("lambert_w(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::LambertW)
-        )
-    }
-    #[test]
     fn test_abs_function() {
         let mut tokenizer = Tokenizer::new("abs(.14159)");
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::ExplicitFunction(NativeFunction::Abs)
-        )
-    }
-    #[test]
-    fn test_sign_function() {
-        let mut tokenizer = Tokenizer::new("sign(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Sign)
-        )
-    }
-    #[test]
-    fn test_sign2_function() {
-        let mut tokenizer = Tokenizer::new("sgn(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Sign)
-        )
-    }
-    #[test]
-    fn test_sign3_function() {
-        let mut tokenizer = Tokenizer::new("signum(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Sign)
-        )
-    }
-    #[test]
-    fn test_truncate_function() {
-        let mut tokenizer = Tokenizer::new("truncate(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Truncate)
-        )
-    }
-    #[test]
-    fn test_truncate_function2() {
-        let mut tokenizer = Tokenizer::new("trunc(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Truncate)
-        )
-    }
-    #[test]
-    fn test_floor_function() {
-        let mut tokenizer = Tokenizer::new("floor(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Floor)
-        )
-    }
-    #[test]
-    fn test_ceil_function() {
-        let mut tokenizer = Tokenizer::new("ceil(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Ceil)
-        )
-    }
-    #[test]
-    fn test_round_function() {
-        let mut tokenizer = Tokenizer::new("round(.14159)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Round)
-        )
-    }
-    #[test]
-    fn test_min_function() {
-        let mut tokenizer = Tokenizer::new("min(.14159,2)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Min)
-        )
-    }
-    #[test]
-    fn test_max_function() {
-        let mut tokenizer = Tokenizer::new("max(.14159,2)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Max)
-        )
-    }
-    #[test]
-    fn test_avg_function() {
-        let mut tokenizer = Tokenizer::new("avg(10,20)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Avg)
-        )
-    }
-    #[test]
-    fn test_median_function() {
-        let mut tokenizer = Tokenizer::new("med(10,20)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Med)
-        )
-    }
-    #[test]
-    fn test_median_function2() {
-        let mut tokenizer = Tokenizer::new("median(10,20)");
-        assert_eq!(
-            tokenizer.next().unwrap(),
-            Token::ExplicitFunction(NativeFunction::Med)
         )
     }
 }
