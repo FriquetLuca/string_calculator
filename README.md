@@ -17,6 +17,7 @@ fn main() {
 ## Features
 
 By default, all features are enabled. If you only want a specific eval method, use the feature associated with it's name in the list:
+- `eval_complex`
 - `eval_decimal`
 - `eval_f64`
 - `eval_i64`
