@@ -24,7 +24,7 @@ By default, all features are enabled. If you only want a specific eval method, u
 Example:
 ```toml
 [dependencies]
-lib-mailgun = { default-features = false, features = ["webhook"] }
+string_calculator = { version = "0.3", default-features = false, features = ["eval_decimal"] }
 ```
 
 ## Operators
