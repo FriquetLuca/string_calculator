@@ -1,4 +1,3 @@
-use conv::ValueFrom;
 use std::{error, sync::Arc};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -191,7 +190,8 @@ pub fn eval(expr: Node) -> Result<f64, Box<dyn error::Error>> {
             for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
                 result += eval(arg).unwrap();
             }
-            Ok(result / f64::value_from(args.len())?)
+            let len = args.len() as f64;
+            Ok(result / len)
         }
         Med(args) => {
             let mut results = vec![];

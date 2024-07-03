@@ -178,7 +178,8 @@ pub fn eval(expr: Node) -> Result<i64, Box<dyn error::Error>> {
             for arg in <Vec<Node> as Clone>::clone(&args).into_iter() {
                 result += eval(arg).unwrap();
             }
-            Ok(result / (args.len() as i64))
+            let len = args.len() as i64;
+            Ok(result / len)
         }
         Med(args) => {
             let mut results = vec![];

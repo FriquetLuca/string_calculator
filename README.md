@@ -14,6 +14,19 @@ fn main() {
 }
 ```
 
+## Features
+
+By default, all features are enabled. If you only want a specific eval method, use the feature associated with it's name in the list:
+- `eval_decimal`
+- `eval_f64`
+- `eval_i64`
+
+Example:
+```toml
+[dependencies]
+lib-mailgun = { default-features = false, features = ["webhook"] }
+```
+
 ## Operators
 
 Since there's a lot of things that could be simplified visually, here's the full list of operators implemented.
