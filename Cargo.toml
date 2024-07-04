@@ -23,8 +23,9 @@ codegen-units = 1
 strip = true
 
 [features]
-default = ["eval_decimal", "eval_f64", "eval_i64", "eval_complex"]
+default = ["eval_decimal", "eval_f64", "eval_i64", "eval_complex", "eval_number"]
 eval_decimal = ["dep:rust_decimal"]
 eval_f64 = []
 eval_i64 = []
 eval_complex=["dep:num-complex"]
+eval_number=[]
