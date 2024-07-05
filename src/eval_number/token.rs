@@ -1,10 +1,5 @@
 use crate::utils::OperatorCategory;
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum Number {
-    Float(f64),
-    Integer(i64),
-}
+use super::Number;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum NativeFunction {

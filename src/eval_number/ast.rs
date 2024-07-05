@@ -1,6 +1,5 @@
 use std::{error, sync::Arc};
-
-use super::token::Number;
+use super::Number;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Node {
@@ -198,25 +197,25 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                             if value_b <= (u32::MAX as i64) {
                                 match value_a.checked_pow(value_b as u32) {
                                     Some(p) => Ok(Number::Integer(p)),
-                                    None => Ok(Number::Float((value_a as f64).powf(value_b as f64))),
+                                    None => Ok(Number::from((value_a as f64).powf(value_b as f64))),
                                 }
                             } else {
-                                Ok(Number::Float((value_a as f64).powf(value_b as f64)))
+                                Ok(Number::from((value_a as f64).powf(value_b as f64)))
                             }
                         } else {
                             let value_a = value_a as f64;
                             if value_b < (i32::MIN as i64) {
-                                Ok(Number::Float(value_a.powf(value_b as f64)))
+                                Ok(Number::from(value_a.powf(value_b as f64)))
                             } else {
-                                Ok(Number::Float(value_a.powi(value_b as i32)))
+                                Ok(Number::from(value_a.powi(value_b as i32)))
                             }
                         }
                     },
-                    Number::Float(value_b) => Ok(Number::Float((value_a as f64) / value_b)),
+                    Number::Float(value_b) => Ok(Number::from((value_a as f64) / value_b)),
                 }
                 Number::Float(value_a) => match b {
-                    Number::Integer(value_b) => Ok(Number::Float(value_a / (value_b as f64))),
-                    Number::Float(value_b) => Ok(Number::Float(value_a / value_b)),
+                    Number::Integer(value_b) => Ok(Number::from(value_a / (value_b as f64))),
+                    Number::Float(value_b) => Ok(Number::from(value_a / value_b)),
                 }
             }
         },
@@ -225,12 +224,12 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
             let root = eval(*n_th_expr)?;
             match root {
                 Number::Integer(n) => match x {
-                    Number::Integer(x) => Ok(Number::Float((x as f64).powf(1.0 / (n as f64)))),
-                    Number::Float(x) => Ok(Number::Float(x.powf(1.0 / (n as f64)))),
+                    Number::Integer(x) => Ok(Number::from((x as f64).powf(1.0 / (n as f64)))),
+                    Number::Float(x) => Ok(Number::from(x.powf(1.0 / (n as f64)))),
                 }
                 Number::Float(n) => match x {
-                    Number::Integer(x) => Ok(Number::Float((x as f64).powf(1.0 / n))),
-                    Number::Float(x) => Ok(Number::Float(x.powf(1.0 / n))),
+                    Number::Integer(x) => Ok(Number::from((x as f64).powf(1.0 / n))),
+                    Number::Float(x) => Ok(Number::from(x.powf(1.0 / n))),
                 }
             }
         },
@@ -337,7 +336,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                     if (f <= (i64::MAX as f64)) && (f >= (i64::MIN as f64)) {
                         Ok(Number::Integer(n as i64))
                     } else {
-                        Ok(Number::Float(f))
+                        Ok(Number::from(f))
                     }
                 }
             }
@@ -345,120 +344,113 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
         Sin(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.sin())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).sin()))
+                Number::Float(f) => Ok(Number::from(f.sin())),
+                Number::Integer(i) => Ok(Number::from((i as f64).sin()))
             }
         },
         Cos(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.cos())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).cos()))
+                Number::Float(f) => Ok(Number::from(f.cos())),
+                Number::Integer(i) => Ok(Number::from((i as f64).cos()))
             }
         },
         Tan(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.tan())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).tan()))
+                Number::Float(f) => Ok(Number::from(f.tan())),
+                Number::Integer(i) => Ok(Number::from((i as f64).tan()))
             }
         },
         Sinh(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.sinh())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).sinh()))
+                Number::Float(f) => Ok(Number::from(f.sinh())),
+                Number::Integer(i) => Ok(Number::from((i as f64).sinh()))
             }
         },
         Cosh(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.cosh())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).cosh()))
+                Number::Float(f) => Ok(Number::from(f.cosh())),
+                Number::Integer(i) => Ok(Number::from((i as f64).cosh()))
             }
         },
         Tanh(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.tanh())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).tanh()))
+                Number::Float(f) => Ok(Number::from(f.tanh())),
+                Number::Integer(i) => Ok(Number::from((i as f64).tanh()))
             }
         },
         Asin(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.asin())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).asin()))
+                Number::Float(f) => Ok(Number::from(f.asin())),
+                Number::Integer(i) => Ok(Number::from((i as f64).asin()))
             }
         },
         Acos(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.acos())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).acos()))
+                Number::Float(f) => Ok(Number::from(f.acos())),
+                Number::Integer(i) => Ok(Number::from((i as f64).acos()))
             }
         },
         Atan(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.atan())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).atan()))
+                Number::Float(f) => Ok(Number::from(f.atan())),
+                Number::Integer(i) => Ok(Number::from((i as f64).atan()))
             }
         },
         Arsinh(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.asinh())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).asinh()))
+                Number::Float(f) => Ok(Number::from(f.asinh())),
+                Number::Integer(i) => Ok(Number::from((i as f64).asinh()))
             }
         },
         Arcosh(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.acosh())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).acosh()))
+                Number::Float(f) => Ok(Number::from(f.acosh())),
+                Number::Integer(i) => Ok(Number::from((i as f64).acosh()))
             }
         },
         Artanh(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
             match sub_expr {
-                Number::Float(f) => Ok(Number::Float(f.atanh())),
-                Number::Integer(i) => Ok(Number::Float((i as f64).atanh()))
+                Number::Float(f) => Ok(Number::from(f.atanh())),
+                Number::Integer(i) => Ok(Number::from((i as f64).atanh()))
             }
         },
         Sqrt(sub_expr) => { // @todo: check if it's a perfect square, if so and a i64, then cast to integer
             let sqr = eval(*sub_expr)?;
             match sqr {
-                Number::Integer(i) => Ok(Number::Float((i as f64).sqrt())),
-                Number::Float(f) => Ok(Number::Float(f.sqrt())),
+                Number::Integer(i) => Ok(Number::from((i as f64).sqrt())),
+                Number::Float(f) => Ok(Number::from(f.sqrt())),
             }
         },
         Ln(sub_expr) => {
             let sqr = eval(*sub_expr)?;
             match sqr {
-                Number::Integer(i) => Ok(Number::Float((i as f64).ln())),
-                Number::Float(f) => Ok(Number::Float(f.ln())),
+                Number::Integer(i) => Ok(Number::from((i as f64).ln())),
+                Number::Float(f) => Ok(Number::from(f.ln())),
             }
         },
         Lb(sub_expr) => {
             let sqr = eval(*sub_expr)?;
             match sqr {
-                Number::Integer(i) => Ok(Number::Float((i as f64).log(2.0))),
-                Number::Float(f) => Ok(Number::Float(f.log(2.0))),
+                Number::Integer(i) => Ok(Number::from((i as f64).log(2.0))),
+                Number::Float(f) => Ok(Number::from(f.log(2.0))),
             }
         },
         Truncate(sub_expr) => {
             let x = eval(*sub_expr)?;
             match x {
                 Number::Integer(n) => Ok(Number::Integer(n)),
-                Number::Float(n) => {
-                    let f = n.trunc();
-                    if (f <= (i64::MAX as f64)) && (f >= (i64::MIN as f64)) {
-                        Ok(Number::Integer(n as i64))
-                    } else {
-                        Ok(Number::Float(f))
-                    }
-                }
+                Number::Float(n) => Ok(Number::from(n.trunc())),
             }
         },
         Sign(sub_expr) => {
@@ -482,7 +474,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                 Number::Integer(x) => x as f64,
                 Number::Float(x) => x,
             };
-            Ok(Number::Float(sub_expr.exp()))
+            Ok(Number::from(sub_expr.exp()))
         },
         Exp2(sub_expr) => {
             let sub_expr = eval(*sub_expr)?;
@@ -490,7 +482,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                 Number::Integer(x) => x as f64,
                 Number::Float(x) => x,
             };
-            Ok(Number::Float(sub_expr.exp2()))
+            Ok(Number::from(sub_expr.exp2()))
         },
         Log(expr1, expr2) => {
             let expr1 = eval(*expr1)?;
@@ -503,7 +495,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                 Number::Integer(x) => x as f64,
                 Number::Float(x) => x,
             };
-            Ok(Number::Float(expr1.log(expr2)))
+            Ok(Number::from(expr1.log(expr2)))
         },
         Min(args) => {
             if args.len() > 1 {
@@ -584,7 +576,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                 result += sub_expr;
             }
             let len = args.len() as f64;
-            Ok(Number::Float(result / len))
+            Ok(Number::from(result / len))
         }
         Med(args) => {
             let mut results = vec![];
@@ -614,7 +606,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                     Number::Integer(x) => x as f64,
                     Number::Float(x) => x,
                 };
-                Ok(Number::Float((a + b) / 2.0))
+                Ok(Number::from((a + b) / 2.0))
             } else {
                 Ok(results[len >> 1].clone())
             }
@@ -630,7 +622,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
                 Number::Integer(x) => x as f64,
                 Number::Float(x) => x,
             };
-            Ok(Number::Float(expr1.atan2(expr2)))
+            Ok(Number::from(expr1.atan2(expr2)))
         },
     }
 }
@@ -638,7 +630,7 @@ pub fn eval(expr: Node) -> Result<Number, Box<dyn error::Error>> {
 //Unit tests
 #[cfg(test)]
 mod tests {
-    use crate::eval_number::{ast::eval, parser::Parser, token::Number};
+    use crate::eval_number::{ast::eval, parser::Parser, Number};
 
     #[test]
     fn test_div() {

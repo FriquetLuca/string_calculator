@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
 use super::ast::Node;
-use super::token::{NativeFunction, Number, Token};
+use super::token::{NativeFunction, Token};
 use super::tokenizer::Tokenizer;
+use super::Number;
 use crate::utils::{OperatorCategory, ParseError};
 
 pub struct Parser<'a> {

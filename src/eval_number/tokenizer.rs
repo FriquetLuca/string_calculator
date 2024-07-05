@@ -1,4 +1,5 @@
-use super::token::{NativeFunction, Number, Token};
+use super::token::{NativeFunction, Token};
+use super::Number;
 use crate::utils::deserialize_superscript_number;
 use std::iter::Peekable;
 use std::str::Chars;

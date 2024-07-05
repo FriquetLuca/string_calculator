@@ -1,12 +1,13 @@
 mod ast;
+mod number;
 mod parser;
 mod token;
 mod tokenizer;
 
+pub use number::Number;
 use crate::utils::ParseError;
 use ast::eval;
 use parser::Parser;
-use token::Number;
 
 /// Evaluate a formula inside a string and compute it into f64.
 pub fn eval_number(expr: String, placeholder: Number) -> Result<Number, ParseError> {
