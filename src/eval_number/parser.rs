@@ -374,10 +374,7 @@ impl<'a> Parser<'a> {
             }
             Token::Superscript(script) => {
                 self.get_next_token()?;
-                Ok(Node::Pow(
-                    Box::new(left_expr),
-                    Box::new(Node::Num(script)),
-                ))
+                Ok(Node::Pow(Box::new(left_expr), Box::new(Node::Num(script))))
             }
             Token::Modulo => {
                 self.get_next_token()?;
@@ -418,37 +415,55 @@ mod tests {
     #[test]
     fn test_add() {
         let mut parser = Parser::new("1+2", None).unwrap();
-        let expected = Add(Box::new(Num(Number::Integer(1))), Box::new(Num(Number::Integer(2))));
+        let expected = Add(
+            Box::new(Num(Number::Integer(1))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_subtract() {
         let mut parser = Parser::new("1-2", None).unwrap();
-        let expected = Subtract(Box::new(Num(Number::Integer(1))), Box::new(Num(Number::Integer(2))));
+        let expected = Subtract(
+            Box::new(Num(Number::Integer(1))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_multiply() {
         let mut parser = Parser::new("1*2", None).unwrap();
-        let expected = Multiply(Box::new(Num(Number::Integer(1))), Box::new(Num(Number::Integer(2))));
+        let expected = Multiply(
+            Box::new(Num(Number::Integer(1))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_divide() {
         let mut parser = Parser::new("1/2", None).unwrap();
-        let expected = Divide(Box::new(Num(Number::Integer(1))), Box::new(Num(Number::Integer(2))));
+        let expected = Divide(
+            Box::new(Num(Number::Integer(1))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_modulo() {
         let mut parser = Parser::new("1%2", None).unwrap();
-        let expected = Modulo(Box::new(Num(Number::Integer(1))), Box::new(Num(Number::Integer(2))));
+        let expected = Modulo(
+            Box::new(Num(Number::Integer(1))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_caret() {
         let mut parser = Parser::new("1^2", None).unwrap();
-        let expected = Pow(Box::new(Num(Number::Integer(1))), Box::new(Num(Number::Integer(2))));
+        let expected = Pow(
+            Box::new(Num(Number::Integer(1))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -469,7 +484,10 @@ mod tests {
     #[test]
     fn test_rad_to_deg() {
         let mut parser = Parser::new("1rad", None).unwrap();
-        let expected = Multiply(Box::new(Num(Number::Integer(1))), Box::new(Num(Number::Float(57.2957795131))));
+        let expected = Multiply(
+            Box::new(Num(Number::Integer(1))),
+            Box::new(Num(Number::Float(57.2957795131))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -487,19 +505,28 @@ mod tests {
     #[test]
     fn test_modulo_function() {
         let mut parser = Parser::new("mod(3,2)", None).unwrap();
-        let expected = Modulo(Box::new(Num(Number::Integer(3))), Box::new(Num(Number::Integer(2))));
+        let expected = Modulo(
+            Box::new(Num(Number::Integer(3))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_pow_function() {
         let mut parser = Parser::new("pow(3,2)", None).unwrap();
-        let expected = Pow(Box::new(Num(Number::Integer(3))), Box::new(Num(Number::Integer(2))));
+        let expected = Pow(
+            Box::new(Num(Number::Integer(3))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_log_function() {
         let mut parser = Parser::new("log(3,2)", None).unwrap();
-        let expected = Log(Box::new(Num(Number::Integer(3))), Box::new(Num(Number::Integer(2))));
+        let expected = Log(
+            Box::new(Num(Number::Integer(3))),
+            Box::new(Num(Number::Integer(2))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -640,7 +667,10 @@ mod tests {
     #[test]
     fn test_atan2_function() {
         let mut parser = Parser::new("atan2(5.25,7.8)", None).unwrap();
-        let expected = Atan2(Box::new(Num(Number::Float(5.25))), Box::new(Num(Number::Float(7.8))));
+        let expected = Atan2(
+            Box::new(Num(Number::Float(5.25))),
+            Box::new(Num(Number::Float(7.8))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -670,7 +700,11 @@ mod tests {
     #[test]
     fn test_min_function2() {
         let mut parser = Parser::new("min(2,3,5)", None).unwrap();
-        let expected = Min(Arc::new(vec![Num(Number::Integer(2)), Num(Number::Integer(3)), Num(Number::Integer(5))]));
+        let expected = Min(Arc::new(vec![
+            Num(Number::Integer(2)),
+            Num(Number::Integer(3)),
+            Num(Number::Integer(5)),
+        ]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -682,7 +716,11 @@ mod tests {
     #[test]
     fn test_max_function2() {
         let mut parser = Parser::new("max(2,3,5)", None).unwrap();
-        let expected = Max(Arc::new(vec![Num(Number::Integer(2)), Num(Number::Integer(3)), Num(Number::Integer(5))]));
+        let expected = Max(Arc::new(vec![
+            Num(Number::Integer(2)),
+            Num(Number::Integer(3)),
+            Num(Number::Integer(5)),
+        ]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -694,7 +732,11 @@ mod tests {
     #[test]
     fn test_avg_function2() {
         let mut parser = Parser::new("avg(2,3,5)", None).unwrap();
-        let expected = Avg(Arc::new(vec![Num(Number::Integer(2)), Num(Number::Integer(3)), Num(Number::Integer(5))]));
+        let expected = Avg(Arc::new(vec![
+            Num(Number::Integer(2)),
+            Num(Number::Integer(3)),
+            Num(Number::Integer(5)),
+        ]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -706,13 +748,20 @@ mod tests {
     #[test]
     fn test_med_function2() {
         let mut parser = Parser::new("med(2,3,5)", None).unwrap();
-        let expected = Med(Arc::new(vec![Num(Number::Integer(2)), Num(Number::Integer(3)), Num(Number::Integer(5))]));
+        let expected = Med(Arc::new(vec![
+            Num(Number::Integer(2)),
+            Num(Number::Integer(3)),
+            Num(Number::Integer(5)),
+        ]));
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_implicit_mul_prts() {
         let mut parser = Parser::new("(2)(3)", None).unwrap();
-        let expected = Multiply(Box::new(Num(Number::Integer(2))), Box::new(Num(Number::Integer(3))));
+        let expected = Multiply(
+            Box::new(Num(Number::Integer(2))),
+            Box::new(Num(Number::Integer(3))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
@@ -736,13 +785,19 @@ mod tests {
     #[test]
     fn test_implicit_mul_prts_ceil() {
         let mut parser = Parser::new("(2)⌈3⌉", None).unwrap();
-        let expected = Multiply(Box::new(Num(Number::Integer(2))), Box::new(Ceil(Box::new(Num(Number::Integer(3))))));
+        let expected = Multiply(
+            Box::new(Num(Number::Integer(2))),
+            Box::new(Ceil(Box::new(Num(Number::Integer(3))))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]
     fn test_implicit_mul_ceil_prts() {
         let mut parser = Parser::new("⌈2⌉(3)", None).unwrap();
-        let expected = Multiply(Box::new(Ceil(Box::new(Num(Number::Integer(2))))), Box::new(Num(Number::Integer(3))));
+        let expected = Multiply(
+            Box::new(Ceil(Box::new(Num(Number::Integer(2))))),
+            Box::new(Num(Number::Integer(3))),
+        );
         assert_eq!(parser.parse().unwrap(), expected);
     }
     #[test]

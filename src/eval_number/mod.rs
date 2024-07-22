@@ -4,9 +4,9 @@ mod parser;
 mod token;
 mod tokenizer;
 
-pub use number::Number;
 use crate::utils::ParseError;
 use ast::eval;
+pub use number::Number;
 use parser::Parser;
 
 /// Evaluate a formula inside a string and compute it into f64.

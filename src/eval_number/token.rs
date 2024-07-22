@@ -1,5 +1,5 @@
-use crate::utils::OperatorCategory;
 use super::Number;
+use crate::utils::OperatorCategory;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum NativeFunction {

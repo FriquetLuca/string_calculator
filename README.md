@@ -21,11 +21,12 @@ By default, all features are enabled. If you only want a specific eval method, u
 - `eval_decimal`
 - `eval_f64`
 - `eval_i64`
+- `eval_number`
 
 Example:
 ```toml
 [dependencies]
-string_calculator = { version = "0.3", default-features = false, features = ["eval_decimal"] }
+string_calculator = { version = "0.4", default-features = false, features = ["eval_decimal"] }
 ```
 
 ## Operators
@@ -52,7 +53,7 @@ Since there's a lot of things that could be simplified visually, here's the full
   Example:
   `4 / 2`
   `= 2`
-1. Modulo (x%y) (only in `eval_decimal`, `eval_f64` and `eval_i64`)
+1. Modulo (x%y) (only in `eval_decimal`, `eval_number`, `eval_f64` and `eval_i64`)
   This operator handle the rest of the euclidian division between two number.
   Example:
   `4 % 2`
@@ -77,17 +78,17 @@ Since there's a lot of things that could be simplified visually, here's the full
   Example:
   `5²`
   `= 25`
-1. Factorial (x!) (only in `eval_decimal`, `eval_f64` and `eval_i64`)
+1. Factorial (x!) (only in `eval_decimal`, `eval_number`, `eval_f64` and `eval_i64`)
   This operator handle the factorial of a real `x`.
   Example:
   `5!`
   `= 120`
-1. DegToRad (x°) (only in `eval_complex` and `eval_f64`)
+1. DegToRad (x°) (only in `eval_complex`, `eval_number` and `eval_f64`)
   This operator handle the conversion from degree to radian. You should note that it's priority is the same as multiplication.
   Example:
   `3°`
   `= 0.05235987755982989`
-1. RadToDeg (x rad) (only in `eval_complex` and `eval_f64`)
+1. RadToDeg (x rad) (only in `eval_complex`, `eval_number` and `eval_f64`)
   This operator handle the conversion from radian to degree. You should note that it's priority is the same as multiplication.
   Example:
   `3 rad`
@@ -95,21 +96,21 @@ Since there's a lot of things that could be simplified visually, here's the full
 
 ## Constants
 
-1. Pi (π) (only in `eval_complex`, `eval_decimal` and `eval_f64`)
+1. Pi (π) (only in `eval_complex`, `eval_number`, `eval_decimal` and `eval_f64`)
   Pi is available as `pi` or `π`.
-1. E (e) (only in `eval_complex`, `eval_decimal` and `eval_f64`)
+1. E (e) (only in `eval_complex`, `eval_number`, `eval_decimal` and `eval_f64`)
   E is available as `e`.
 
 ## Function notation
 
 Some function can be written purely using their original mathematical notation if wanted.
 
-1. Floor (⌊x⌋) (only in `eval_f64` and `eval_decimal`)
+1. Floor (⌊x⌋) (only in `eval_f64`, `eval_number` and `eval_decimal`)
   This function gives the greatest integer less than or equal to `x`.
   Example:
   `⌊2.4⌋`
   `= 2`
-1. Ceiling (⌈x⌉) (only in `eval_f64` and `eval_decimal`)
+1. Ceiling (⌈x⌉) (only in `eval_f64`, `eval_number` and `eval_decimal`)
   This function gives the smallest integer greater or equal to `x`.
   Example:
   `⌈2.4⌉`
@@ -118,35 +119,35 @@ Some function can be written purely using their original mathematical notation i
 ## Functions
 
 1. Absolute value (abs(x))
-1. Signum (sgn(x), sign(x), signum(x)) (only in `eval_decimal`, `eval_f64` and `eval_i64`)
+1. Signum (sgn(x), sign(x), signum(x)) (only in `eval_decimal`, `eval_f64`, `eval_number` and `eval_i64`)
 1. Power (pow(x,y))
 1. Square root (sqrt(x))
 1. Root (root(x, n))
-1. Modulo (mod(x,y)) (only in `eval_decimal`, `eval_f64` and `eval_i64`)
+1. Modulo (mod(x,y)) (only in `eval_decimal`, `eval_number`, `eval_f64` and `eval_i64`)
 1. Exponential (exp(x), exp2(x))
 1. Logarithm (ln(x), lb(x), log(x, b))
-1. Extremum (min(...X), max(...X))
-1. Avg (avg(...X)) (only in `eval_decimal`, `eval_f64` and `eval_i64`)
-1. Median (median(...X), med(...X)) (only in `eval_decimal`, `eval_f64` and `eval_i64`)
-1. Truncate (trunc(x), truncate(x)) (only in `eval_f64` and `eval_decimal`)
-1. Floor (floor(x)) (only in `eval_f64` and `eval_decimal`)
-1. Ceil (ceil(x)) (only in `eval_f64` and `eval_decimal`)
-1. Round (round(x)) (only in `eval_f64` and `eval_decimal`)
-1. Lambert W (lambert_w(x), w(x)) (only in `eval_f64` and `eval_decimal`)
-1. Iterated Logarithm (ilog(x, b)) (only in `eval_f64` and `eval_decimal`)
-1. Sin (sin(θ)) (only in `eval_complex` and `eval_f64`)
-1. Asin (asin(x)) (only in `eval_complex` and `eval_f64`)
-1. cos (cos(θ)) (only in `eval_complex` and `eval_f64`)
-1. Acos (acos(x)) (only in `eval_complex` and `eval_f64`)
-1. Tan (tan(θ)) (only in `eval_complex` and `eval_f64`)
-1. Atan (atan(x)) (only in `eval_complex` and `eval_f64`)
-1. Sinh (sinh(θ)) (only in `eval_complex` and `eval_f64`)
-1. Asinh (asinh(x), arsinh(x)) (only in `eval_complex` and `eval_f64`)
-1. Cosh (cosh(θ)) (only in `eval_complex` and `eval_f64`)
-1. Acosh (acosh(x), arcosh(x)) (only in `eval_complex` and `eval_f64`)
-1. Tanh (tanh(θ)) (only in `eval_complex` and `eval_f64`)
-1. Atanh (atanh(x), artanh(x)) (only in `eval_complex` and `eval_f64`)
-1. Atan 2 (atan2(y, x)) (only in `eval_f64`)
+1. Extremum (min(...X), max(...X)) (only in `eval_decimal`, `eval_number`, `eval_f64` and `eval_i64`)
+1. Avg (avg(...X)) (only in `eval_decimal`, `eval_number`, `eval_f64` and `eval_i64`)
+1. Median (median(...X), med(...X)) (only in `eval_decimal`, `eval_number`, `eval_f64` and `eval_i64`)
+1. Truncate (trunc(x), truncate(x)) (only in `eval_f64`, `eval_number` and `eval_decimal`)
+1. Floor (floor(x)) (only in `eval_f64`, `eval_number` and `eval_decimal`)
+1. Ceil (ceil(x)) (only in `eval_f64`, `eval_number` and `eval_decimal`)
+1. Round (round(x)) (only in `eval_f64`, `eval_number` and `eval_decimal`)
+1. Lambert W (lambert_w(x), w(x)) (only in `eval_f64`, `eval_number` and `eval_decimal`)
+1. Iterated Logarithm (ilog(x, b)) (only in `eval_f64`, `eval_number` and `eval_decimal`)
+1. Sin (sin(θ)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Asin (asin(x)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. cos (cos(θ)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Acos (acos(x)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Tan (tan(θ)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Atan (atan(x)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Sinh (sinh(θ)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Asinh (asinh(x), arsinh(x)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Cosh (cosh(θ)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Acosh (acosh(x), arcosh(x)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Tanh (tanh(θ)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Atanh (atanh(x), artanh(x)) (only in `eval_complex`, `eval_number` and `eval_f64`)
+1. Atan 2 (atan2(y, x)) (only in `eval_f64` and `eval_number`)
 1. GCD (gcd(...X)) (only in `eval_i64`)
 1. LCM (lcm(...X)) (only in `eval_i64`)
 

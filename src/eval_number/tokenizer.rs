@@ -57,56 +57,56 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('⁰') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+            Some('⁰') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('¹') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('¹') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('²') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('²') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('³') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('³') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('⁴') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('⁴') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('⁵') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('⁵') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('⁶') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('⁶') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('⁷') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('⁷') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('⁸') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('⁸') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
-            Some('⁹') => Some(Token::Superscript(
-                Number::Integer(deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .unwrap(),
+            ))),
+            Some('⁹') => Some(Token::Superscript(Number::Integer(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
-                    .unwrap()),
-            )),
+                    .unwrap(),
+            ))),
             Some('0'..='9') => {
                 let mut floatting = false;
                 let mut number = current_char?.to_string();
@@ -373,7 +373,10 @@ mod tests {
     #[test]
     fn test_superscript_number() {
         let mut tokenizer = Tokenizer::new("⁰¹²³⁴⁵⁶⁷⁸⁹");
-        assert_eq!(tokenizer.next().unwrap(), Token::Superscript(Number::Integer(123456789)))
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::Superscript(Number::Integer(123456789))
+        )
     }
     #[test]
     fn test_decimal_number() {
