@@ -7,7 +7,7 @@
 Simply import the eval you need and use it.
 
 ```rs
-use string_templater::eval_f64;
+use string_calculator::eval_f64;
 
 fn main() {
   println!("{}", eval_f64("(2+3) / 2".to_string(), 0.0)); // 2.5
