@@ -51,7 +51,52 @@ impl<'a> Iterator for Tokenizer<'a> {
                     None
                 }
             }
-            Some('⁰'..='⁹') => Some(Token::Superscript(
+            Some('⁰') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('¹') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('²') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('³') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('⁴') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('⁵') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('⁶') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('⁷') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('⁸') => Some(Token::Superscript(
+                deserialize_superscript_number(&current_char?, &mut self.expr)
+                    .parse::<i64>()
+                    .unwrap(),
+            )),
+            Some('⁹') => Some(Token::Superscript(
                 deserialize_superscript_number(&current_char?, &mut self.expr)
                     .parse::<i64>()
                     .unwrap(),
